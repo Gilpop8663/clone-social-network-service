@@ -1,2 +1,4 @@
 export const EMAIL_NAME = 'email';
 export const PASSWORD_NAME = 'password';
+export const GOOGLE = 'google';
+export const GITHUB = 'github';
