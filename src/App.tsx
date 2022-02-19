@@ -1,17 +1,18 @@
-import { Home, Auth, Profile, EditProfile } from 'pages';
+import Footer from 'components/Footer';
+import { authService } from './firebase';
+import { User } from 'firebase/auth';
 import { useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import AppRouter from 'router/AppRouter';
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<User | null>(
+    authService.currentUser
+  );
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/" element={<Auth />} />
-        <Route path="/" element={<Profile />} />
-        <Route path="/" element={<EditProfile />} />
-      </Routes>
-    </BrowserRouter>
+    <>
+      <AppRouter isLoggedIn={isLoggedIn} />
+      <Footer />
+    </>
   );
 }
