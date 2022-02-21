@@ -1,0 +1,73 @@
+import React, { useState } from 'react';
+import { deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import styled from 'styled-components';
+import { dbService } from '../firebase';
+import { IMessageListProps } from 'utils/interface';
+
+const Container = styled.div``;
+
+const MessageText = styled.span``;
+
+const ButtonWrapper = styled.div``;
+
+const Button = styled.button``;
+
+const EditForm = styled.form``;
+
+const EditInput = styled.input``;
+
+export default function Message({ id, text, isOwner }: IMessageListProps) {
+  const [isEdit, setIsEdit] = useState(false);
+  const [editMessage, setEditMessage] = useState(text);
+
+  const messageRef = doc(dbService, 'messages', `${id}`);
+
+  const onDeleteClick = async () => {
+    const ok = window.confirm('정말 삭제하시겠습니까?');
+    if (ok) {
+      await deleteDoc(messageRef);
+    }
+  };
+
+  const onToggleEdit = () => setIsEdit((prev) => !prev);
+
+  const onEditSubmit = async (e: any) => {
+    e.preventDefault();
+    await await updateDoc(messageRef, {
+      text: editMessage,
+    });
+    setIsEdit(false);
+  };
+
+  const onEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.value);
+    setEditMessage(e.target.value);
+  };
+  return (
+    <Container key={id}>
+      <MessageText>{text}</MessageText>
+      {isOwner && (
+        <ButtonWrapper>
+          <Button onClick={onDeleteClick} value="Delete">
+            딜리트
+          </Button>
+          <Button onClick={onToggleEdit} value="Edit">
+            수정
+          </Button>
+          {isEdit && (
+            <EditForm onSubmit={onEditSubmit}>
+              <EditInput
+                type="text"
+                onChange={onEditChange}
+                required
+                placeholder="수정할 텍스트를 입력해주세요"
+                value={editMessage}
+              />
+              <EditInput type="submit" value="수정하기" />
+            </EditForm>
+          )}
+        </ButtonWrapper>
+      )}
+    </Container>
+  );
+}

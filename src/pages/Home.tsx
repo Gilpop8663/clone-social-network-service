@@ -1,4 +1,4 @@
-import React, { FormEvent, useEffect, useState } from 'react';
+import React, { FormEvent, useEffect, useRef, useState } from 'react';
 import {
   addDoc,
   collection,
@@ -7,7 +7,11 @@ import {
   query,
 } from 'firebase/firestore';
 import styled from 'styled-components';
-import { dbService } from '../firebase';
+import { v4 as uuidv4 } from 'uuid';
+import { ref, uploadString } from 'firebase/storage';
+import { dbService, storageService } from '../firebase';
+import { IMessageListProps } from 'utils/interface';
+import Message from 'components/Message';
 
 const Container = styled.div``;
 
@@ -17,35 +21,21 @@ const Input = styled.input``;
 
 const MessageWrapper = styled.div``;
 
-const Message = styled.div``;
+const PhotoWrapper = styled.div``;
 
-const MessageText = styled.span``;
+const Photo = styled.img``;
 
-interface IMessageListProps {
-  id: string;
-  text: string;
-  createdAt: number;
-  creatorId: string;
-}
+const Button = styled.button``;
 
 interface IHomeProps {
-  userObj?: any;
+  userObj: any;
 }
 
 export default function Home({ userObj }: IHomeProps) {
   const [message, setMessage] = useState('');
   const [messageList, setMessageList] = useState<any>([]);
-  //   const getMessageList = async () => {
-  //     const docRef = query(collection(dbService, 'messages'));
-  //     const querySnapshot = await getDocs(docRef);
-  //     querySnapshot.forEach((doc: any) => {
-  //       const messageObj = {
-  //         ...doc.data(),
-  //         id: doc.id,
-  //       };
-  //       setMessageList((prev) => [...prev, messageObj]);
-  //     });
-  //   };
+  const [photoSource, setPhotoSource] = useState('');
+  const photoRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const q = query(
@@ -66,19 +56,44 @@ export default function Home({ userObj }: IHomeProps) {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!message) return;
-    await addDoc(collection(dbService, 'messages'), {
-      text: message,
-      createdAt: Date.now(),
-      creatorId: userObj.uid,
-    });
-    setMessage('');
+    // if (!message) return;
+    const fileRef = ref(storageService, `${userObj.uid}/${uuidv4()}`);
+    const response = await uploadString(fileRef, photoSource, 'data_url');
+    console.log(response);
+    // await addDoc(collection(dbService, 'messages'), {
+    //   text: message,
+    //   createdAt: Date.now(),
+    //   creatorId: userObj.uid,
+    // });
+    // setMessage('');
   };
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
       target: { value },
     } = e;
     setMessage(value);
+  };
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const {
+      target: { files },
+    } = e;
+    if (!files) return;
+    const imageFile = files[0];
+    const reader = new FileReader();
+    reader.onloadend = (e: any) => {
+      const {
+        currentTarget: { result },
+      } = e;
+      setPhotoSource(result);
+    };
+    reader.readAsDataURL(imageFile);
+  };
+
+  const onClearPhoto = () => {
+    if (!photoRef.current?.value) return;
+    photoRef.current.value = '';
+    setPhotoSource('');
   };
   return (
     <Container>
@@ -90,13 +105,28 @@ export default function Home({ userObj }: IHomeProps) {
           maxLength={120}
           placeholder="네 생각은 뭔데?"
         />
+        <Input
+          ref={photoRef}
+          type="file"
+          accept="images/*"
+          onChange={onFileChange}
+        />
         <Input type="submit" value="보내기" />
+        {photoSource && (
+          <PhotoWrapper>
+            <Photo src={photoSource} width="50px" height="50px" />
+            <Button onClick={onClearPhoto}>Clear</Button>
+          </PhotoWrapper>
+        )}
       </Form>
       <MessageWrapper>
         {messageList.map((item: IMessageListProps) => (
-          <Message key={item.id}>
-            <MessageText>{item.text}</MessageText>
-          </Message>
+          <Message
+            key={item.id}
+            id={item.id}
+            text={item.text}
+            isOwner={userObj.uid === item.creatorId}
+          />
         ))}
       </MessageWrapper>
     </Container>

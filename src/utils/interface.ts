@@ -1,5 +1,7 @@
-import { User } from 'firebase/auth';
-
-interface IAuthProps {
-  isLoggedIn: User | null;
+export interface IMessageListProps {
+  id: string;
+  text: string;
+  createdAt?: number;
+  creatorId?: string;
+  isOwner?: boolean;
 }
