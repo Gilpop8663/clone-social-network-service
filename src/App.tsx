@@ -5,22 +5,26 @@ import { useEffect, useState } from 'react';
 import AppRouter from 'router/AppRouter';
 
 export default function App() {
-  const [init, setInit] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [userObj, setUserObj] = useState({});
   useEffect(() => {
     authService.onAuthStateChanged((user) => {
       if (user) {
         setIsLoggedIn(true);
+        setUserObj(user);
       } else {
         setIsLoggedIn(false);
       }
-      setInit(true);
     });
   }, []);
 
   return (
     <>
-      {init ? <AppRouter isLoggedIn={isLoggedIn} /> : '생성중입니다...'}
+      {isLoggedIn ? (
+        <AppRouter userObj={userObj} isLoggedIn={isLoggedIn} />
+      ) : (
+        '생성중입니다...'
+      )}
       <Footer />
     </>
   );
