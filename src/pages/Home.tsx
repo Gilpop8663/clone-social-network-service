@@ -8,7 +8,7 @@ import {
 } from 'firebase/firestore';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { ref, uploadString } from 'firebase/storage';
+import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import { dbService, storageService } from '../firebase';
 import { IMessageListProps } from 'utils/interface';
 import Message from 'components/Message';
@@ -56,16 +56,22 @@ export default function Home({ userObj }: IHomeProps) {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // if (!message) return;
-    const fileRef = ref(storageService, `${userObj.uid}/${uuidv4()}`);
-    const response = await uploadString(fileRef, photoSource, 'data_url');
-    console.log(response);
-    // await addDoc(collection(dbService, 'messages'), {
-    //   text: message,
-    //   createdAt: Date.now(),
-    //   creatorId: userObj.uid,
-    // });
-    // setMessage('');
+    if (!message) return;
+    let photoURL = '';
+    if (photoSource !== '') {
+      const fileRef = ref(storageService, `${userObj.uid}/${uuidv4()}`);
+      const response = await uploadString(fileRef, photoSource, 'data_url');
+      photoURL = await getDownloadURL(response.ref);
+      console.log(photoURL);
+    }
+    await addDoc(collection(dbService, 'messages'), {
+      text: message,
+      createdAt: Date.now(),
+      creatorId: userObj.uid,
+      photoURL,
+    });
+    setMessage('');
+    onClearPhoto();
   };
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
@@ -125,6 +131,7 @@ export default function Home({ userObj }: IHomeProps) {
             key={item.id}
             id={item.id}
             text={item.text}
+            photoURL={item.photoURL}
             isOwner={userObj.uid === item.creatorId}
           />
         ))}

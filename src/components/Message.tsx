@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import styled from 'styled-components';
-import { dbService } from '../firebase';
+import { dbService, storageService } from '../firebase';
 import { IMessageListProps } from 'utils/interface';
+import { deleteObject, ref } from 'firebase/storage';
 
 const Container = styled.div``;
 
@@ -16,7 +17,14 @@ const EditForm = styled.form``;
 
 const EditInput = styled.input``;
 
-export default function Message({ id, text, isOwner }: IMessageListProps) {
+const Image = styled.img``;
+
+export default function Message({
+  id,
+  text,
+  isOwner,
+  photoURL,
+}: IMessageListProps) {
   const [isEdit, setIsEdit] = useState(false);
   const [editMessage, setEditMessage] = useState(text);
 
@@ -26,6 +34,9 @@ export default function Message({ id, text, isOwner }: IMessageListProps) {
     const ok = window.confirm('정말 삭제하시겠습니까?');
     if (ok) {
       await deleteDoc(messageRef);
+      if (photoURL !== '') {
+        await deleteObject(ref(storageService, photoURL));
+      }
     }
   };
 
@@ -40,11 +51,11 @@ export default function Message({ id, text, isOwner }: IMessageListProps) {
   };
 
   const onEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
     setEditMessage(e.target.value);
   };
   return (
     <Container key={id}>
+      {photoURL && <Image src={photoURL} />}
       <MessageText>{text}</MessageText>
       {isOwner && (
         <ButtonWrapper>
