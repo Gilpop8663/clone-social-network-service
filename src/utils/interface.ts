@@ -6,3 +6,7 @@ export interface IMessageListProps {
   creatorId?: string;
   isOwner?: boolean;
 }
+
+export interface IUserObjProps {
+  userObj: any;
+}

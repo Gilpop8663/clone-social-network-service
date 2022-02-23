@@ -12,12 +12,13 @@ interface AppRouterProps {
 export default function AppRouter({ isLoggedIn, userObj }: AppRouterProps) {
   return (
     <BrowserRouter>
-      {isLoggedIn && <Navigation />}
+      {isLoggedIn && <Navigation userObj={userObj} />}
       <Routes>
         {isLoggedIn && <Route path="/" element={<Home userObj={userObj} />} />}
-        {isLoggedIn && <Route path="/profile" element={<Profile />} />}
+        {isLoggedIn && (
+          <Route path="/profile" element={<Profile userObj={userObj} />} />
+        )}
         {!isLoggedIn && <Route path="/" element={<Auth />} />}
-        <Route path="/" element={<EditProfile />} />
       </Routes>
     </BrowserRouter>
   );

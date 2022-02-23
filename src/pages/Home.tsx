@@ -10,7 +10,7 @@ import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import { dbService, storageService } from '../firebase';
-import { IMessageListProps } from 'utils/interface';
+import { IMessageListProps, IUserObjProps } from 'utils/interface';
 import Message from 'components/Message';
 
 const Container = styled.div``;
@@ -27,11 +27,7 @@ const Photo = styled.img``;
 
 const Button = styled.button``;
 
-interface IHomeProps {
-  userObj: any;
-}
-
-export default function Home({ userObj }: IHomeProps) {
+export default function Home({ userObj }: IUserObjProps) {
   const [message, setMessage] = useState('');
   const [messageList, setMessageList] = useState<any>([]);
   const [photoSource, setPhotoSource] = useState('');
@@ -49,7 +45,6 @@ export default function Home({ userObj }: IHomeProps) {
           ...item.data(),
         };
       });
-      //   console.log(messageArr);
       setMessageList(messageArr);
     });
   }, []);
@@ -62,7 +57,6 @@ export default function Home({ userObj }: IHomeProps) {
       const fileRef = ref(storageService, `${userObj.uid}/${uuidv4()}`);
       const response = await uploadString(fileRef, photoSource, 'data_url');
       photoURL = await getDownloadURL(response.ref);
-      console.log(photoURL);
     }
     await addDoc(collection(dbService, 'messages'), {
       text: message,

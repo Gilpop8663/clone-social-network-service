@@ -17,7 +17,10 @@ export default function App() {
   return (
     <>
       {userObj ? (
-        <AppRouter userObj={userObj} isLoggedIn={Boolean(userObj)} />
+        <AppRouter
+          userObj={userObj}
+          isLoggedIn={Boolean(userObj !== undefined)}
+        />
       ) : (
         '생성중입니다...'
       )}
