@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Auth, Profile, EditProfile } from 'pages';
+import { Home, Auth, Profile } from 'pages';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { User } from 'firebase/auth';
 import Navigation from 'components/Navigation';
@@ -27,7 +27,9 @@ export default function AppRouter({
             element={<Profile refreshUser={refreshUser} userObj={userObj} />}
           />
         )}
-        {isLoggedIn && <Route path="/todos" element={<ToDos />} />}
+        {isLoggedIn && (
+          <Route path="/todos" element={<ToDos userObj={userObj} />} />
+        )}
         {!isLoggedIn && <Route path="/" element={<Auth />} />}
       </Routes>
     </BrowserRouter>
