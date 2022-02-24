@@ -54,7 +54,10 @@ export default function Home({ userObj }: IUserObjProps) {
     if (!message) return;
     let photoURL = '';
     if (photoSource !== '') {
-      const fileRef = ref(storageService, `${userObj.uid}/${uuidv4()}`);
+      const fileRef = ref(
+        storageService,
+        `${userObj.uid}/messages/${uuidv4()}`
+      );
       const response = await uploadString(fileRef, photoSource, 'data_url');
       photoURL = await getDownloadURL(response.ref);
     }

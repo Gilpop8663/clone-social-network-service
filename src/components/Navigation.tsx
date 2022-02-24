@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { IUserObjProps } from 'utils/interface';
@@ -19,6 +18,9 @@ export default function Navigation({ userObj }: IUserObjProps) {
         </List>
         <List>
           <Link to="/profile">{userName}의 Profile</Link>
+        </List>
+        <List>
+          <Link to="/todos">{userName}의 ToDo List</Link>
         </List>
       </ListWrapper>
     </Nav>
