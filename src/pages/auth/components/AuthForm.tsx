@@ -1,28 +1,18 @@
-import { EMAIL_NAME, GITHUB, GOOGLE, PASSWORD_NAME } from 'constants/constant';
-import { authService } from '../firebase';
-import {
-  createUserWithEmailAndPassword,
-  GithubAuthProvider,
-  GoogleAuthProvider,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-} from 'firebase/auth';
 import React, { FormEvent, useState } from 'react';
 import styled from 'styled-components';
-
-const Container = styled.div``;
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
+import { authService } from '../../../firebase';
+import { EMAIL_NAME, PASSWORD_NAME } from 'constants/constant';
 
 const Form = styled.form``;
 
 const Input = styled.input``;
-
-const LoginSelectBox = styled.div``;
-
-const LoginSelect = styled.button``;
-
 const Toggle = styled.div``;
 
-export default function Auth() {
+export default function AuthForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [newAccount, setNewAccount] = useState(true);
@@ -30,16 +20,12 @@ export default function Auth() {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    let data;
+
     try {
       if (newAccount) {
-        data = await createUserWithEmailAndPassword(
-          authService,
-          email,
-          password
-        );
+        await createUserWithEmailAndPassword(authService, email, password);
       } else {
-        data = await signInWithEmailAndPassword(authService, email, password);
+        await signInWithEmailAndPassword(authService, email, password);
       }
     } catch (error: any) {
       setError(error.message.toString().split(':')[1]);
@@ -58,20 +44,8 @@ export default function Auth() {
 
   const toggleAccount = () => setNewAccount((prev) => !prev);
 
-  const onSocialClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    const {
-      currentTarget: { name },
-    } = e;
-    let provider;
-    if (name === GOOGLE) {
-      provider = new GoogleAuthProvider();
-    } else if (name === GITHUB) {
-      provider = new GithubAuthProvider();
-    }
-    provider && (await signInWithPopup(authService, provider));
-  };
   return (
-    <Container>
+    <>
       <Form onSubmit={onSubmit}>
         <Input
           value={email}
@@ -95,14 +69,6 @@ export default function Auth() {
       <Toggle onClick={toggleAccount}>
         {newAccount ? 'Sign In' : 'Create Account'}
       </Toggle>
-      <LoginSelectBox>
-        <LoginSelect name={GOOGLE} onClick={onSocialClick}>
-          Continue with Google
-        </LoginSelect>
-        <LoginSelect name={GITHUB} onClick={onSocialClick}>
-          Continue with Github
-        </LoginSelect>
-      </LoginSelectBox>
-    </Container>
+    </>
   );
 }

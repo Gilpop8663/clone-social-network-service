@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import styled from 'styled-components';
-import { dbService, storageService } from '../firebase';
+import { dbService, storageService } from '../../../firebase';
 import { IMessageListProps } from 'utils/interface';
 import { deleteObject, ref } from 'firebase/storage';
+import { MESSAGES } from 'constants/constant';
 
 const Container = styled.div``;
 
@@ -28,7 +29,7 @@ export default function Message({
   const [isEdit, setIsEdit] = useState(false);
   const [editMessage, setEditMessage] = useState(text);
 
-  const messageRef = doc(dbService, 'messages', `${id}`);
+  const messageRef = doc(dbService, MESSAGES, `${id}`);
 
   const onDeleteClick = async () => {
     const ok = window.confirm('정말 삭제하시겠습니까?');

@@ -1,7 +1,8 @@
+import { TODO } from 'constants/constant';
 import { deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { dbService } from '../firebase';
+import { dbService } from '../../../firebase';
 
 interface IToDoProps {
   id: string;
@@ -19,7 +20,7 @@ const EditInput = styled.input``;
 export default function ToDo({ id, text }: IToDoProps) {
   const [isEdit, setIsEdit] = useState(false);
   const [editMessage, setEditMessage] = useState(text);
-  const toDoRef = doc(dbService, 'toDo', `${id}`);
+  const toDoRef = doc(dbService, TODO, `${id}`);
   const onDeleteClick = async () => {
     const ok = window.confirm('정말 삭제하시겠습니까?');
     if (ok) {

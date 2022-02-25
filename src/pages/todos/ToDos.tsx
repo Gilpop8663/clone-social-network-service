@@ -7,9 +7,10 @@ import {
   query,
   where,
 } from 'firebase/firestore';
-import { dbService } from '../firebase';
+import { dbService } from '../../firebase';
 import styled from 'styled-components';
-import ToDo from 'components/ToDo';
+import ToDo from './components/ToDo';
+import { CREATED_AT, CREATOR_ID, TODO } from 'constants/constant';
 
 const Container = styled.div``;
 
@@ -25,9 +26,9 @@ export default function ToDos({ userObj }: any) {
 
   useEffect(() => {
     const q = query(
-      collection(dbService, 'toDo'),
-      where('creatorId', '==', `${userObj.uid}`),
-      orderBy('createdAt', 'desc')
+      collection(dbService, TODO),
+      where(CREATOR_ID, '==', `${userObj.uid}`),
+      orderBy(CREATED_AT, 'desc')
     );
     onSnapshot(q, async (snapshot) => {
       const toDosArr = snapshot.docs.map((item: any) => {
@@ -38,11 +39,11 @@ export default function ToDos({ userObj }: any) {
       });
       setToDoList(toDosArr);
     });
-  }, []);
+  }, [userObj.uid]);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await addDoc(collection(dbService, `toDo`), {
+    await addDoc(collection(dbService, TODO), {
       text: toDos,
       createdAt: Date.now(),
       creatorId: userObj.uid,

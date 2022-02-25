@@ -1,36 +1,38 @@
-import React from 'react';
-import { Home, Auth, Profile } from 'pages';
+import { Home, Auth, Profile, ToDos } from 'pages';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { User } from 'firebase/auth';
 import Navigation from 'components/Navigation';
-import ToDos from 'pages/ToDos';
+import { HOME_URL, PROFILE_URL, TODOS_URL } from 'constants/constant';
 
 interface AppRouterProps {
-  isLoggedIn: User | null | any;
+  isLoggedIn: boolean;
   userObj?: any;
   refreshUser: () => void;
+  changeName: boolean;
 }
 
 export default function AppRouter({
   isLoggedIn,
   userObj,
   refreshUser,
+  changeName,
 }: AppRouterProps) {
   return (
     <BrowserRouter>
       {isLoggedIn && <Navigation userObj={userObj} />}
       <Routes>
-        {isLoggedIn && <Route path="/" element={<Home userObj={userObj} />} />}
+        {isLoggedIn && (
+          <Route path={HOME_URL} element={<Home userObj={userObj} />} />
+        )}
         {isLoggedIn && (
           <Route
-            path="/profile"
+            path={PROFILE_URL}
             element={<Profile refreshUser={refreshUser} userObj={userObj} />}
           />
         )}
         {isLoggedIn && (
-          <Route path="/todos" element={<ToDos userObj={userObj} />} />
+          <Route path={TODOS_URL} element={<ToDos userObj={userObj} />} />
         )}
-        {!isLoggedIn && <Route path="/" element={<Auth />} />}
+        {!isLoggedIn && <Route path={HOME_URL} element={<Auth />} />}
       </Routes>
     </BrowserRouter>
   );

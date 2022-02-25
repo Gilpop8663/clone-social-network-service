@@ -5,6 +5,7 @@ import { authService, storageService } from '../firebase';
 import { v4 as uuidv4 } from 'uuid';
 import { updateProfile } from 'firebase/auth';
 import { getDownloadURL, ref, uploadString } from 'firebase/storage';
+import { HOME_URL, PROFILE_IMG } from 'constants/constant';
 
 const Container = styled.div``;
 
@@ -28,7 +29,7 @@ export default function Profile({ userObj, refreshUser }: IProfileProps) {
   const navigate = useNavigate();
   const onLogoutClick = () => {
     authService.signOut();
-    navigate('/');
+    navigate(HOME_URL);
   };
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -36,7 +37,7 @@ export default function Profile({ userObj, refreshUser }: IProfileProps) {
     if (profileImg !== '') {
       const fileRef = ref(
         storageService,
-        `${userObj.uid}/profileImg/${uuidv4()}`
+        `${userObj.uid}/${PROFILE_IMG}/${uuidv4()}`
       );
       const response = await uploadString(fileRef, profileImg, 'data_url');
       profileURL = await getDownloadURL(response.ref);

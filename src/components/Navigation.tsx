@@ -1,3 +1,4 @@
+import { HOME_URL, PROFILE_URL, TODOS_URL } from 'constants/constant';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { IUserObjProps } from 'utils/interface';
@@ -14,13 +15,13 @@ export default function Navigation({ userObj }: IUserObjProps) {
     <Nav>
       <ListWrapper>
         <List>
-          <Link to="/">Home</Link>
+          <Link to={HOME_URL}>Home</Link>
         </List>
         <List>
-          <Link to="/profile">{userName}의 Profile</Link>
+          <Link to={PROFILE_URL}>{userName}의 Profile</Link>
         </List>
         <List>
-          <Link to="/todos">{userName}의 ToDo List</Link>
+          <Link to={TODOS_URL}>{userName}의 ToDo List</Link>
         </List>
       </ListWrapper>
     </Nav>
