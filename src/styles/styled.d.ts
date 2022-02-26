@@ -6,6 +6,7 @@ declare module 'styled-components' {
     bgColor: string;
     mainBlueColor: string;
     mainHoverBlueColor: string;
+    mainWhiteBlueColor: string;
     blackGrayColor: string;
     blackGrayHoverColor: string;
   }

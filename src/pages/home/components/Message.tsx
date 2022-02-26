@@ -6,7 +6,12 @@ import { IMessageListProps } from 'utils/interface';
 import { deleteObject, ref } from 'firebase/storage';
 import { MESSAGES } from 'constants/constant';
 
-const Container = styled.div``;
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+`;
 
 const MessageText = styled.span``;
 
@@ -56,8 +61,8 @@ export default function Message({
   };
   return (
     <Container key={id}>
-      {photoURL && <Image src={photoURL} />}
       <MessageText>{text}</MessageText>
+      {photoURL && <Image src={photoURL} />}
       {isOwner && (
         <ButtonWrapper>
           <Button onClick={onDeleteClick} value="Delete">
