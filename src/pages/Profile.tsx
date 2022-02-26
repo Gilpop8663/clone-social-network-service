@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { authService, storageService } from '../firebase';
@@ -26,14 +26,24 @@ export default function Profile({ userObj, refreshUser }: IProfileProps) {
   const userName = userObj.displayName ? userObj.displayName : 'Anonymous';
   const [newDisplayName, setNewDisplayName] = useState(userName);
   const [profileImg, setProfileImg] = useState(userObj.photoURL);
+  const profileoRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const onLogoutClick = () => {
     authService.signOut();
     navigate(HOME_URL);
   };
+
+  const onClearPhoto = () => {
+    if (!profileoRef.current?.value) return;
+    profileoRef.current.value = '';
+    setProfileImg('');
+  };
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let profileURL = '';
+    if (userName === newDisplayName && profileImg === '') {
+      return;
+    }
     if (profileImg !== '') {
       const fileRef = ref(
         storageService,
@@ -42,13 +52,12 @@ export default function Profile({ userObj, refreshUser }: IProfileProps) {
       const response = await uploadString(fileRef, profileImg, 'data_url');
       profileURL = await getDownloadURL(response.ref);
     }
-    if (userName !== newDisplayName || userObj.photoURL !== profileImg) {
-      await updateProfile(userObj, {
-        displayName: newDisplayName,
-        photoURL: profileURL,
-      });
-    }
+    await updateProfile(userObj, {
+      displayName: newDisplayName,
+      photoURL: profileURL,
+    });
     refreshUser();
+    onClearPhoto();
   };
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewDisplayName(e.target.value);
@@ -78,7 +87,12 @@ export default function Profile({ userObj, refreshUser }: IProfileProps) {
           placeholder="Display Name"
           value={newDisplayName}
         />
-        <Input type="file" accept="images/*" onChange={onProfileImage} />
+        <Input
+          ref={profileoRef}
+          type="file"
+          accept="images/*"
+          onChange={onProfileImage}
+        />
         <Input type="submit" value="바꾸기" />
       </Form>
       <Image src={userObj.photoURL} />

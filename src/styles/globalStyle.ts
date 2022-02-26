@@ -48,6 +48,9 @@ button {
 	border: none;
 	background-color: transparent;
 }
+body{
+	font-size: 10px;
+}
 `;
 
 export default GlobalStyle;

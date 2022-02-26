@@ -19,7 +19,7 @@ export default function Home({ userObj }: IUserObjProps) {
       collection(dbService, MESSAGES),
       orderBy(CREATED_AT, 'desc')
     );
-    onSnapshot(q, async (snapshot) => {
+    onSnapshot(q, (snapshot) => {
       const messageArr = snapshot.docs.map((item: any) => {
         return {
           id: item.id,
