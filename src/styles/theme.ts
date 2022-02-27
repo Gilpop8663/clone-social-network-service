@@ -5,6 +5,7 @@ const theme = {
   mainWhiteBlueColor: '#8ECDF7',
   blackGrayColor: 'black',
   blackGrayHoverColor: '#272C30',
+  baseBorderStyle: '1px solid rgba(0, 0, 0, 0.1)',
 };
 
 export default theme;

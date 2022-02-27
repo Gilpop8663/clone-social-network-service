@@ -6,16 +6,169 @@ import { v4 as uuidv4 } from 'uuid';
 import { updateProfile } from 'firebase/auth';
 import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import { HOME_URL, PROFILE_IMG } from 'constants/constant';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faImage, faX } from '@fortawesome/free-solid-svg-icons';
 
-const Container = styled.div``;
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  height: 100%;
+`;
 
-const Logout = styled.button``;
+const Logout = styled.button`
+  width: 80px;
+  height: 30px;
+  border-radius: 15px;
+  color: red;
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+  border: ${({ theme }) => theme.baseBorderStyle};
+  transition: all 0.2s ease-in-out;
+  margin-top: 20px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+`;
 
 const Form = styled.form``;
 
-const Image = styled.img``;
+const PhotoWrapper = styled.div`
+  display: flex;
+  width: 90%;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+`;
+
+const Photo = styled.img`
+  width: 100%;
+  border-radius: 20px;
+  margin-bottom: 20px;
+`;
+
+const Button = styled.button`
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  background-color: rgba(0, 0, 0, 0.8);
+  top: 15px;
+  left: 15px;
+  transition: all 0.1s ease-in-out;
+  cursor: pointer;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+`;
 
 const Input = styled.input``;
+
+const FormWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 600px;
+  height: 100%;
+  border: ${({ theme }) => theme.baseBorderStyle};
+  padding-top: 125px;
+  padding-bottom: 20px;
+`;
+
+const BackImg = styled.div`
+  width: 600px;
+  height: 200px;
+  background-color: #cfd9de;
+  position: absolute;
+  z-index: 0;
+`;
+
+const PhotoInput = styled.input`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+`;
+
+const UserImg = styled.img`
+  width: 135px;
+  height: 135px;
+  border-radius: 50%;
+  padding: 5px;
+  background-color: white;
+  margin-left: 20px;
+  margin-bottom: 20px;
+  z-index: 2;
+`;
+
+const UserInfo = styled.span`
+  margin-left: 20px;
+  font-size: 2em;
+  font-weight: bold;
+`;
+
+const Label = styled.label`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  margin-left: 10px;
+  color: ${({ theme }) => theme.mainBlueColor};
+  &:hover {
+    border-radius: 50%;
+    background-color: #e8f5fd;
+  }
+`;
+
+const SubmitInput = styled.input<{ isMessage: boolean }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  width: 80px;
+  height: 30px;
+  border-radius: 15px;
+  background: none;
+  color: white;
+  font-weight: 600;
+  font-size: 1.2em;
+  cursor: ${({ isMessage }) => (isMessage ? 'pointer' : 'click')};
+  background-color: ${({ theme, isMessage }) =>
+    isMessage ? theme.mainBlueColor : theme.mainWhiteBlueColor};
+`;
+
+const EditWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-right: 20px;
+`;
+const Edit = styled.span`
+  font-size: 1.6em;
+  font-weight: bold;
+  margin-bottom: 10px;
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+`;
+
+const InputWrapper = styled.div`
+  display: flex;
+  margin-bottom: 10px;
+`;
 
 interface IProfileProps {
   userObj: any;
@@ -25,8 +178,8 @@ interface IProfileProps {
 export default function Profile({ userObj, refreshUser }: IProfileProps) {
   const userName = userObj.displayName ? userObj.displayName : 'Anonymous';
   const [newDisplayName, setNewDisplayName] = useState(userName);
-  const [profileImg, setProfileImg] = useState(userObj.photoURL);
-  const profileoRef = useRef<HTMLInputElement>(null);
+  const [profileImg, setProfileImg] = useState('');
+  const profileRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const onLogoutClick = () => {
     authService.signOut();
@@ -34,16 +187,16 @@ export default function Profile({ userObj, refreshUser }: IProfileProps) {
   };
 
   const onClearPhoto = () => {
-    if (!profileoRef.current?.value) return;
-    profileoRef.current.value = '';
+    if (!profileRef.current?.value) return;
+    profileRef.current.value = '';
     setProfileImg('');
   };
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    let profileURL = '';
     if (userName === newDisplayName && profileImg === '') {
       return;
     }
+    let profileURL = '';
     if (profileImg !== '') {
       const fileRef = ref(
         storageService,
@@ -80,23 +233,53 @@ export default function Profile({ userObj, refreshUser }: IProfileProps) {
   };
   return (
     <Container>
-      <Form onSubmit={onSubmit}>
-        <Input
-          onChange={onChange}
-          type="text"
-          placeholder="Display Name"
-          value={newDisplayName}
-        />
-        <Input
-          ref={profileoRef}
-          type="file"
-          accept="images/*"
-          onChange={onProfileImage}
-        />
-        <Input type="submit" value="바꾸기" />
-      </Form>
-      <Image src={userObj.photoURL} />
-      <Logout onClick={onLogoutClick}>Log Out</Logout>
+      <BackImg />
+      <FormWrapper>
+        <UserImg src={userObj.photoURL} />
+        <Wrapper>
+          <UserInfo>{userObj.displayName}</UserInfo>
+          <EditWrapper>
+            <Edit>Edit Profile</Edit>
+            <Form onSubmit={onSubmit}>
+              <InputWrapper>
+                <Input
+                  onChange={onChange}
+                  type="text"
+                  placeholder="Display Name"
+                  value={newDisplayName}
+                />
+
+                <Label htmlFor="profile_id">
+                  <FontAwesomeIcon size="2x" icon={faImage} />
+                  <PhotoInput
+                    ref={profileRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={onProfileImage}
+                    id="profile_id"
+                  />
+                </Label>
+              </InputWrapper>
+              <SubmitInput
+                isMessage={userName !== newDisplayName || profileImg !== ''}
+                type="submit"
+                value="Save"
+              />
+            </Form>
+          </EditWrapper>
+        </Wrapper>
+
+        {profileImg && (
+          <PhotoWrapper>
+            <Photo src={profileImg} />
+            <Button onClick={onClearPhoto}>
+              <FontAwesomeIcon color="white" icon={faX} />
+            </Button>
+          </PhotoWrapper>
+        )}
+
+        <Logout onClick={onLogoutClick}>Log Out</Logout>
+      </FormWrapper>
     </Container>
   );
 }

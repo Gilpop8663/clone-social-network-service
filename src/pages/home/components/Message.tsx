@@ -10,7 +10,7 @@ const Container = styled.div`
   display: flex;
   width: 600px;
   height: 100%;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: ${({ theme }) => theme.baseBorderStyle};
   border-top: none;
   padding: 17px;
 `;
@@ -36,7 +36,7 @@ const Button = styled.button`
   height: 30px;
   font-size: 1.2em;
   border-radius: 15px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: ${({ theme }) => theme.baseBorderStyle};
   cursor: pointer;
   &:hover {
     background-color: rgba(0, 0, 0, 0.2);

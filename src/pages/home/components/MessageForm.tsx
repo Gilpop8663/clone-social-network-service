@@ -17,7 +17,7 @@ const Form = styled.form`
   flex-direction: column;
   width: 600px;
   height: 100%;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: ${({ theme }) => theme.baseBorderStyle};
   padding: 17px;
 `;
 
@@ -39,6 +39,7 @@ const SubmitInput = styled.input<{ isMessage: boolean }>`
   color: white;
   font-weight: 600;
   font-size: 1.6em;
+  cursor: ${({ isMessage }) => (isMessage ? 'pointer' : 'click')};
   background-color: ${({ theme, isMessage }) =>
     isMessage ? theme.mainBlueColor : theme.mainWhiteBlueColor};
 `;
@@ -86,6 +87,7 @@ const Label = styled.label`
   align-items: center;
   width: 40px;
   height: 40px;
+  cursor: pointer;
   color: ${({ theme }) => theme.mainBlueColor};
   &:hover {
     border-radius: 50%;
@@ -130,6 +132,7 @@ const Button = styled.button`
   top: 15px;
   left: 15px;
   transition: all 0.1s ease-in-out;
+  cursor: pointer;
   &:hover {
     background-color: rgba(0, 0, 0, 0.6);
   }
@@ -147,7 +150,7 @@ export default function MessageForm({ userObj }: IUserObjProps) {
   const photoRef = useRef<HTMLInputElement>(null);
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!message) return;
+    if (!message && photoSource === '') return;
     let photoURL = '';
     if (photoSource !== '') {
       const fileRef = ref(
@@ -223,7 +226,7 @@ export default function MessageForm({ userObj }: IUserObjProps) {
           <PhotoInput
             ref={photoRef}
             type="file"
-            accept="images/*"
+            accept="image/*"
             onChange={onFileChange}
             id="photo_id"
           />
