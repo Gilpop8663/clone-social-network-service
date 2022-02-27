@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/clone-social-network-service/static/js/main.ccb486ad.js",
+    "main.js": "/clone-social-network-service/static/js/main.69daf4ce.js",
     "index.html": "/clone-social-network-service/index.html",
-    "main.ccb486ad.js.map": "/clone-social-network-service/static/js/main.ccb486ad.js.map"
+    "main.69daf4ce.js.map": "/clone-social-network-service/static/js/main.69daf4ce.js.map"
   },
   "entrypoints": [
-    "static/js/main.ccb486ad.js"
+    "static/js/main.69daf4ce.js"
   ]
 }
