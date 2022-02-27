@@ -244,7 +244,9 @@ export default function Profile({ userObj, refreshUser }: IProfileProps) {
           src={userObj.photoURL !== null ? userObj.photoURL : GUEST_ICON}
         />
         <Wrapper>
-          <UserInfo>{userObj.displayName}</UserInfo>
+          <UserInfo>
+            {userObj.displayName ? userObj.displayName : GUEST_NAME}
+          </UserInfo>
           <EditWrapper>
             <Edit>Edit Profile</Edit>
             <Form onSubmit={onSubmit}>

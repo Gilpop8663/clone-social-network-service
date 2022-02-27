@@ -71,16 +71,22 @@ const SubmitInput = styled.input<{ isMessage: boolean }>`
   justify-content: center;
   align-items: center;
   border: none;
-  width: 80px;
-  height: 40px;
-  border-radius: 20px;
+  width: 70px;
+  height: 35px;
+  border-radius: 17.5px;
   background: none;
   color: white;
   font-weight: 600;
-  font-size: 1.6em;
+  font-size: 1.2em;
   cursor: ${({ isMessage }) => (isMessage ? 'pointer' : 'click')};
   background-color: ${({ theme, isMessage }) =>
     isMessage ? theme.mainBlueColor : theme.mainWhiteBlueColor};
+`;
+
+const InputWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const ToDosContainer = styled.ul``;
@@ -127,12 +133,14 @@ export default function ToDos({ userObj }: any) {
     <Container>
       <Form onSubmit={onSubmit}>
         <ToDoWelcome>To Do List</ToDoWelcome>
-        <Input
-          onChange={onChange}
-          type="text"
-          placeholder="할 일을 적어주세요"
-        />
-        <SubmitInput isMessage={toDos !== ''} type="submit" value="보내기" />
+        <InputWrapper>
+          <Input
+            onChange={onChange}
+            type="text"
+            placeholder="할 일을 적어주세요"
+          />
+          <SubmitInput isMessage={toDos !== ''} type="submit" value="보내기" />
+        </InputWrapper>
       </Form>
       <ToDosContainer>
         {toDoList.map((item: any) => (

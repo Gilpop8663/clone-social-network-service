@@ -32,13 +32,13 @@ const SubmitInput = styled.input<{ isMessage: boolean }>`
   justify-content: center;
   align-items: center;
   border: none;
-  width: 80px;
-  height: 40px;
-  border-radius: 20px;
+  width: 70px;
+  height: 35px;
+  border-radius: 17.5px;
   background: none;
   color: white;
   font-weight: 600;
-  font-size: 1.6em;
+  font-size: 1.2em;
   cursor: ${({ isMessage }) => (isMessage ? 'pointer' : 'click')};
   background-color: ${({ theme, isMessage }) =>
     isMessage ? theme.mainBlueColor : theme.mainWhiteBlueColor};
