@@ -13,6 +13,7 @@ import {
 } from 'constants/constant';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage, faX } from '@fortawesome/free-solid-svg-icons';
+import { Helmet } from 'react-helmet';
 
 const Container = styled.div`
   display: flex;
@@ -238,6 +239,9 @@ export default function Profile({ userObj, refreshUser }: IProfileProps) {
   };
   return (
     <Container>
+      <Helmet>
+        <title>Twitter Profile</title>
+      </Helmet>
       <BackImg />
       <FormWrapper>
         <UserImg

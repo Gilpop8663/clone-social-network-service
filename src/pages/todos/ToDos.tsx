@@ -17,6 +17,7 @@ import {
   GUEST_NAME,
   TODO,
 } from 'constants/constant';
+import { Helmet } from 'react-helmet';
 
 const Container = styled.div`
   display: flex;
@@ -131,6 +132,9 @@ export default function ToDos({ userObj }: any) {
   };
   return (
     <Container>
+      <Helmet>
+        <title>Twitter To Do List</title>
+      </Helmet>
       <Form onSubmit={onSubmit}>
         <ToDoWelcome>To Do List</ToDoWelcome>
         <InputWrapper>

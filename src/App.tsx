@@ -1,6 +1,7 @@
 import Footer from 'components/Footer';
 import { authService } from './firebase';
 import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet';
 import AppRouter from 'router/AppRouter';
 
 export default function App() {
@@ -22,6 +23,10 @@ export default function App() {
 
   return (
     <>
+      <Helmet>
+        <title>Twitter</title>
+        <meta name="description" content="twitter clone application" />
+      </Helmet>
       <AppRouter
         changeName={changeName}
         userObj={userObj}
