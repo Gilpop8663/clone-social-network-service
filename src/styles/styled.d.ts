@@ -9,6 +9,7 @@ declare module 'styled-components' {
     mainWhiteBlueColor: string;
     blackGrayColor: string;
     blackGrayHoverColor: string;
+    greenColor: string;
     baseBorderStyle: string;
   }
 }

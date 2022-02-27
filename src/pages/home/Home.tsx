@@ -18,6 +18,7 @@ const MessageWrapper = styled.div``;
 
 export default function Home({ userObj }: IUserObjProps) {
   const [messageList, setMessageList] = useState<any>([]);
+  const [fetch, setFetch] = useState(false);
 
   useEffect(() => {
     const q = query(
@@ -33,6 +34,12 @@ export default function Home({ userObj }: IUserObjProps) {
       });
       setMessageList(messageArr);
     });
+  }, []);
+
+  useEffect(() => {
+    setInterval(() => {
+      setFetch((prev) => !prev);
+    }, 60000);
   }, []);
 
   return (

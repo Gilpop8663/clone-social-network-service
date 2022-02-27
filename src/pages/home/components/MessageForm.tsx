@@ -3,7 +3,7 @@ import { dbService, storageService } from '../../../firebase';
 import { v4 as uuidv4 } from 'uuid';
 import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import styled from 'styled-components';
-import { MESSAGES } from 'constants/constant';
+import { GUEST_ICON, GUEST_NAME, MESSAGES } from 'constants/constant';
 import { addDoc, collection } from 'firebase/firestore';
 import { IUserObjProps } from 'utils/interface';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -164,8 +164,8 @@ export default function MessageForm({ userObj }: IUserObjProps) {
       text: message,
       createdAt: Date.now(),
       creatorId: userObj.uid,
-      userId: userObj.displayName,
-      userImage: userObj.photoURL,
+      userId: userObj.displayName ? userObj.displayName : GUEST_NAME,
+      userImage: userObj.photoURL !== null ? userObj.photoURL : GUEST_ICON,
       photoURL,
     });
     setMessage('');
@@ -203,7 +203,9 @@ export default function MessageForm({ userObj }: IUserObjProps) {
     <Form onSubmit={onSubmit}>
       <Home>Home</Home>
       <TextWrapper>
-        <ProfileImg src={userObj.photoURL} />
+        <ProfileImg
+          src={userObj.photoURL !== null ? userObj.photoURL : GUEST_ICON}
+        />
         <TextInput
           value={message}
           onChange={onChange}

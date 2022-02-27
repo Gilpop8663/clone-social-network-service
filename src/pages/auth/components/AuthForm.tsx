@@ -53,7 +53,19 @@ const Form = styled.form`
   justify-content: space-between; ;
 `;
 
-const CloseButton = styled.span``;
+const CloseButton = styled.span`
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 15px;
+  transition: all 0.2s ease-in-out;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+`;
 
 const Input = styled.input`
   width: 300px;
@@ -94,6 +106,7 @@ const TopNav = styled.div`
 
 const Welcome = styled.span`
   font-size: 2em;
+  font-weight: bold;
   margin-bottom: 50px;
 `;
 interface IAuthFormProps {
@@ -133,11 +146,13 @@ export default function AuthForm({ close, newCount }: IAuthFormProps) {
   return (
     <Container>
       <TopNav>
-        <FontAwesomeIcon
-          size="2x"
-          icon={faX}
-          onClick={() => close((prev) => !prev)}
-        />
+        <CloseButton>
+          <FontAwesomeIcon
+            size="2x"
+            icon={faX}
+            onClick={() => close((prev) => !prev)}
+          />
+        </CloseButton>
         <MiniLogo />
         <div></div>
       </TopNav>

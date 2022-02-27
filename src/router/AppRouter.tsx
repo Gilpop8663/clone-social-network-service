@@ -21,6 +21,8 @@ export default function AppRouter({
       <BrowserRouter>
         <Routes>
           <Route path={HOME_URL} element={<Auth />} />
+          <Route path={PROFILE_URL} element={<Auth />} />
+          <Route path={TODOS_URL} element={<Auth />} />
         </Routes>
       </BrowserRouter>
     );

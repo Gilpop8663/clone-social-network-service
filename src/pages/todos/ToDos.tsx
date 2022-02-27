@@ -10,13 +10,78 @@ import {
 import { dbService } from '../../firebase';
 import styled from 'styled-components';
 import ToDo from './components/ToDo';
-import { CREATED_AT, CREATOR_ID, TODO } from 'constants/constant';
+import {
+  CREATED_AT,
+  CREATOR_ID,
+  GUEST_ICON,
+  GUEST_NAME,
+  TODO,
+} from 'constants/constant';
 
-const Container = styled.div``;
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
 
-const Form = styled.form``;
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  width: 600px;
+  height: 100%;
+  border: ${({ theme }) => theme.baseBorderStyle};
+  padding: 17px;
+`;
 
-const Input = styled.input``;
+const Input = styled.input`
+  height: 55px;
+  border: none;
+  font-size: 2em;
+  margin-bottom: 10px;
+  &::placeholder {
+    font-size: 2em;
+    border: none;
+    width: 100%;
+  }
+  &:placeholder-shown {
+    font-size: 1em;
+    width: 100%;
+  }
+  &:focus {
+    outline-width: 0;
+  }
+  &:-webkit-input-placeholder {
+    font-size: 1.6em;
+    width: 100%;
+  }
+  &:focus::placeholder {
+    border: none;
+    width: 100%;
+  }
+`;
+
+const ToDoWelcome = styled.div`
+  font-size: 1.6em;
+  font-weight: 600;
+  margin-bottom: 30px;
+`;
+
+const SubmitInput = styled.input<{ isMessage: boolean }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  width: 80px;
+  height: 40px;
+  border-radius: 20px;
+  background: none;
+  color: white;
+  font-weight: 600;
+  font-size: 1.6em;
+  cursor: ${({ isMessage }) => (isMessage ? 'pointer' : 'click')};
+  background-color: ${({ theme, isMessage }) =>
+    isMessage ? theme.mainBlueColor : theme.mainWhiteBlueColor};
+`;
 
 const ToDosContainer = styled.ul``;
 
@@ -47,6 +112,8 @@ export default function ToDos({ userObj }: any) {
       text: toDos,
       createdAt: Date.now(),
       creatorId: userObj.uid,
+      userId: userObj.displayName ? userObj.displayName : GUEST_NAME,
+      userImage: userObj.photoURL !== null ? userObj.photoURL : GUEST_ICON,
     });
     setToDos('');
   };
@@ -59,16 +126,25 @@ export default function ToDos({ userObj }: any) {
   return (
     <Container>
       <Form onSubmit={onSubmit}>
+        <ToDoWelcome>To Do List</ToDoWelcome>
         <Input
           onChange={onChange}
           type="text"
           placeholder="할 일을 적어주세요"
         />
-        <Input type="submit" value="보내기" />
+        <SubmitInput isMessage={toDos !== ''} type="submit" value="보내기" />
       </Form>
       <ToDosContainer>
         {toDoList.map((item: any) => (
-          <ToDo key={item.id} id={item.id} text={item.text} />
+          <ToDo
+            key={item.id}
+            id={item.id}
+            text={item.text}
+            photoURL={item.photoURL}
+            userId={item.userId}
+            createdAt={item.createdAt}
+            userImage={item.userImage}
+          />
         ))}
       </ToDosContainer>
     </Container>

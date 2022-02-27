@@ -5,6 +5,7 @@ import { dbService, storageService } from '../../../firebase';
 import { IMessageListProps } from 'utils/interface';
 import { deleteObject, ref } from 'firebase/storage';
 import { MESSAGES } from 'constants/constant';
+import { dateFormater } from 'utils/utilFn';
 
 const Container = styled.div`
   display: flex;
@@ -87,7 +88,6 @@ const CreateDate = styled.span`
 export default function Message({
   id,
   text,
-  creatorId,
   isOwner,
   photoURL,
   userId,
@@ -117,28 +117,6 @@ export default function Message({
       text: editMessage,
     });
     setIsEdit(false);
-  };
-
-  const dateFormater = (time: number | Date) => {
-    const oldYear = new Date(time).getFullYear();
-    const nowYear = new Date(Date.now()).getFullYear();
-    const oldMonth = new Date(time).toString().slice(3, 7);
-    const oldDay = new Date(time).getDate();
-    const second = (Date.now() - Number(time)) / 1000;
-    const minute = second / 60;
-    const hour = minute / 60;
-    const day = hour / 24;
-    if (minute < 1) {
-      return 'Now';
-    } else if (minute > 1 && hour < 1) {
-      return `${minute.toFixed(0)}m`;
-    } else if (hour > 1 && day < 1) {
-      return `${hour.toFixed(0)}h`;
-    } else if (day > 1 && oldYear === nowYear) {
-      return `${oldMonth} ${oldDay}`;
-    } else if (day > 1 && oldYear !== nowYear) {
-      return `${oldMonth} ${oldDay}, ${oldYear}`;
-    }
   };
 
   const onEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {

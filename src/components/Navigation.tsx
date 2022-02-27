@@ -1,4 +1,9 @@
-import { HOME_URL, PROFILE_URL, TODOS_URL } from 'constants/constant';
+import {
+  GUEST_NAME,
+  HOME_URL,
+  PROFILE_URL,
+  TODOS_URL,
+} from 'constants/constant';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { IUserObjProps } from 'utils/interface';
@@ -10,7 +15,7 @@ const ListWrapper = styled.ul``;
 const List = styled.li``;
 
 export default function Navigation({ userObj }: IUserObjProps) {
-  const userName = userObj.displayName ? userObj.displayName : 'Anonymous';
+  const userName = userObj.displayName ? userObj.displayName : GUEST_NAME;
   return (
     <Nav>
       <ListWrapper>

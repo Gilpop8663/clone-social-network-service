@@ -5,7 +5,12 @@ import { authService, storageService } from '../firebase';
 import { v4 as uuidv4 } from 'uuid';
 import { updateProfile } from 'firebase/auth';
 import { getDownloadURL, ref, uploadString } from 'firebase/storage';
-import { HOME_URL, PROFILE_IMG } from 'constants/constant';
+import {
+  GUEST_ICON,
+  GUEST_NAME,
+  HOME_URL,
+  PROFILE_IMG,
+} from 'constants/constant';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage, faX } from '@fortawesome/free-solid-svg-icons';
 
@@ -176,7 +181,7 @@ interface IProfileProps {
 }
 
 export default function Profile({ userObj, refreshUser }: IProfileProps) {
-  const userName = userObj.displayName ? userObj.displayName : 'Anonymous';
+  const userName = userObj.displayName ? userObj.displayName : GUEST_NAME;
   const [newDisplayName, setNewDisplayName] = useState(userName);
   const [profileImg, setProfileImg] = useState('');
   const profileRef = useRef<HTMLInputElement>(null);
@@ -235,7 +240,9 @@ export default function Profile({ userObj, refreshUser }: IProfileProps) {
     <Container>
       <BackImg />
       <FormWrapper>
-        <UserImg src={userObj.photoURL} />
+        <UserImg
+          src={userObj.photoURL !== null ? userObj.photoURL : GUEST_ICON}
+        />
         <Wrapper>
           <UserInfo>{userObj.displayName}</UserInfo>
           <EditWrapper>
