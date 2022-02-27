@@ -43,8 +43,11 @@ export default function Home({ userObj }: IUserObjProps) {
           <Message
             key={item.id}
             id={item.id}
+            userId={item.userId}
+            userImage={item.userImage}
             text={item.text}
             photoURL={item.photoURL}
+            createdAt={item.createdAt}
             isOwner={userObj.uid === item.creatorId}
           />
         ))}

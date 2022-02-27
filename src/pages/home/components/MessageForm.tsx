@@ -13,16 +13,12 @@ import { faImage, faX } from '@fortawesome/free-solid-svg-icons';
 library.add(faImage, faX);
 
 const Form = styled.form`
-  padding-top: 17px;
-  padding-left: 17px;
   display: flex;
   flex-direction: column;
   width: 600px;
   height: 100%;
-  padding-bottom: 25px;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  padding-right: 20px;
-  margin-bottom: 20px;
+  padding: 17px;
 `;
 
 const Home = styled.div`
@@ -165,6 +161,8 @@ export default function MessageForm({ userObj }: IUserObjProps) {
       text: message,
       createdAt: Date.now(),
       creatorId: userObj.uid,
+      userId: userObj.displayName,
+      userImage: userObj.photoURL,
       photoURL,
     });
     setMessage('');
