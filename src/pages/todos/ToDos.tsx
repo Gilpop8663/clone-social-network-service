@@ -142,6 +142,7 @@ export default function ToDos({ userObj }: any) {
             onChange={onChange}
             type="text"
             placeholder="할 일을 적어주세요"
+            value={toDos}
           />
           <SubmitInput isMessage={toDos !== ''} type="submit" value="보내기" />
         </InputWrapper>

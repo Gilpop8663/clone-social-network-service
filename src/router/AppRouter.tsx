@@ -18,7 +18,7 @@ export default function AppRouter({
 }: AppRouterProps) {
   if (!isLoggedIn) {
     return (
-      <BrowserRouter>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
         <Routes>
           <Route path={HOME_URL} element={<Auth />} />
           <Route path={PROFILE_URL} element={<Auth />} />
@@ -29,7 +29,7 @@ export default function AppRouter({
   }
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={process.env.PUBLIC_URL}>
       <Navigation userObj={userObj} />
       <Routes>
         <Route path={HOME_URL} element={<Home userObj={userObj} />} />
