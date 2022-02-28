@@ -9,6 +9,7 @@ import { IUserObjProps } from 'utils/interface';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faImage, faX } from '@fortawesome/free-solid-svg-icons';
+import { onEnterPress } from 'utils/utilFn';
 
 library.add(faImage, faX);
 
@@ -54,10 +55,39 @@ const PhotoInput = styled.input`
   clip: rect(0, 0, 0, 0);
   border: 0;
 `;
+const TextArea = styled.textarea`
+  height: 55px;
+  border: none;
+  width: 100%;
+  font-size: 1.6em;
+  margin-bottom: 10px;
+  &::placeholder {
+    font-size: 2em;
+    border: none;
+    width: 100%;
+  }
+  &:placeholder-shown {
+    font-size: 1em;
+    width: 100%;
+  }
+  &:focus {
+    outline-width: 0;
+  }
+  &:-webkit-input-placeholder {
+    font-size: 1.6em;
+    width: 100%;
+  }
+  &:focus::placeholder {
+    border: none;
+    width: 100%;
+  }
+`;
+
 const TextInput = styled.input`
   height: 55px;
   border: none;
-  font-size: 2em;
+  width: 100%;
+  font-size: 1.6em;
   margin-bottom: 10px;
   &::placeholder {
     font-size: 2em;
@@ -171,7 +201,14 @@ export default function MessageForm({ userObj }: IUserObjProps) {
     setMessage('');
     onClearPhoto();
   };
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const {
+      target: { value },
+    } = e;
+    setMessage(value);
+  };
+
+  const onAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const {
       target: { value },
     } = e;
@@ -199,18 +236,20 @@ export default function MessageForm({ userObj }: IUserObjProps) {
     photoRef.current.value = '';
     setPhotoSource('');
   };
+
   return (
-    <Form onSubmit={onSubmit}>
+    <Form onSubmit={onSubmit} onKeyPress={(e) => onEnterPress(e, onSubmit)}>
       <Home>Home</Home>
       <TextWrapper>
         <ProfileImg
           src={userObj.photoURL !== null ? userObj.photoURL : GUEST_ICON}
         />
-        <TextInput
+        <TextArea
           value={message}
-          onChange={onChange}
-          type="text"
+          onChange={onAreaChange}
           maxLength={120}
+          cols={1}
+          rows={1}
           placeholder="네 생각은 뭔데?"
         />
       </TextWrapper>

@@ -7,6 +7,8 @@ export interface IMessageListProps {
   isOwner?: boolean;
   userId: string;
   userImage: string;
+  editOnly: boolean;
+  setEditOnly: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export interface IUserObjProps {

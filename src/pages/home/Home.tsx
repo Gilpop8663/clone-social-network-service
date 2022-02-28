@@ -19,6 +19,7 @@ const MessageWrapper = styled.div``;
 
 export default function Home({ userObj }: IUserObjProps) {
   const [messageList, setMessageList] = useState<any>([]);
+  const [editOnly, setEditOnly] = useState(false);
   const [fetch, setFetch] = useState(false);
 
   useEffect(() => {
@@ -52,6 +53,8 @@ export default function Home({ userObj }: IUserObjProps) {
       <MessageWrapper>
         {messageList.map((item: IMessageListProps) => (
           <Message
+            editOnly={editOnly}
+            setEditOnly={setEditOnly}
             key={item.id}
             id={item.id}
             userId={item.userId}

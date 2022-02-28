@@ -55,9 +55,67 @@ const ToDoFinishBtn = styled(ToDoBtn)<{ isFinish: boolean }>`
   margin-right: 10px;
 `;
 
-const EditForm = styled.form``;
+const EditForm = styled.form`
+  position: absolute;
+  z-index: 444;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 600px;
+  height: 100%;
+  max-height: 200px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  border: ${({ theme }) => theme.baseBorderStyle};
+  background-color: white;
+  padding: 17px;
+  opacity: 1;
+`;
 
-const EditInput = styled.input``;
+const EditInput = styled.textarea`
+  max-width: 65%;
+  width: 65%;
+  height: 100%;
+  max-height: 200px;
+  font-size: 1.6em;
+  &::placeholder {
+    font-size: 2em;
+    width: 100%;
+  }
+  &:placeholder-shown {
+    font-size: 1em;
+    width: 100%;
+  }
+  &:focus {
+    outline-width: 0;
+  }
+  &:-webkit-input-placeholder {
+    font-size: 1.6em;
+    width: 100%;
+  }
+  &:focus::placeholder {
+    border: none;
+    width: 100%;
+  }
+`;
+
+const EditSubmit = styled.input<{ isLength: boolean }>`
+  width: 60px;
+  height: 25px;
+  font-size: 1.2em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+  border: none;
+  margin-left: 10px;
+  border-radius: 17.5px;
+  cursor: ${({ isLength }) => (isLength ? 'pointer' : 'click')};
+  background-color: ${({ theme, isLength }) =>
+    isLength ? theme.mainBlueColor : theme.mainWhiteBlueColor};
+`;
 
 const UserInfoWrapper = styled.div`
   display: flex;
@@ -94,6 +152,12 @@ const MessageWrapper = styled.div`
   margin-left: 10px;
 `;
 
+const EditInfo = styled.span`
+  font-size: 1.6em;
+  font-weight: bold;
+  margin-right: 10px;
+`;
+
 export default function ToDo({
   id,
   text,
@@ -122,7 +186,7 @@ export default function ToDo({
     setIsEdit(false);
   };
 
-  const onEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onEditChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setEditMessage(e.target.value);
   };
 
@@ -145,15 +209,19 @@ export default function ToDo({
             </ToDoFinishBtn>
             <ToDoBtn onClick={onToggleEdit}>수정</ToDoBtn>
             {isEdit && (
-              <EditForm onSubmit={onEditSubmit}>
+              <EditForm onSubmit={onEditSubmit} onMouseLeave={onToggleEdit}>
+                <EditInfo>수정 메세지 : </EditInfo>
                 <EditInput
-                  type="text"
                   onChange={onEditChange}
                   required
                   placeholder="수정할 텍스트를 입력해주세요"
                   value={editMessage}
                 />
-                <EditInput type="submit" value="수정하기" />
+                <EditSubmit
+                  isLength={editMessage.length > 0}
+                  type="submit"
+                  value="수정하기"
+                />
               </EditForm>
             )}
           </ButtonWrapper>

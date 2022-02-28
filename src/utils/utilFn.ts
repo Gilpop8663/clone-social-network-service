@@ -1,3 +1,5 @@
+import { FormEvent } from 'react';
+
 export const dateFormater = (time: number | Date) => {
   const oldYear = new Date(time).getFullYear();
   const nowYear = new Date(Date.now()).getFullYear();
@@ -17,5 +19,16 @@ export const dateFormater = (time: number | Date) => {
     return `${oldMonth} ${oldDay}`;
   } else if (day > 1 && oldYear !== nowYear) {
     return `${oldMonth} ${oldDay}, ${oldYear}`;
+  }
+};
+
+export const onEnterPress = (
+  e: React.KeyboardEvent<HTMLFormElement>,
+  sumbitFn: (e: FormEvent<HTMLFormElement>) => void
+) => {
+  if (e.key === 'Enter' && e.shiftKey) {
+    return;
+  } else if (e.key === 'Enter') {
+    sumbitFn(e);
   }
 };

@@ -18,6 +18,7 @@ import {
   TODO,
 } from 'constants/constant';
 import { Helmet } from 'react-helmet';
+import { onEnterPress } from 'utils/utilFn';
 
 const Container = styled.div`
   display: flex;
@@ -34,10 +35,11 @@ const Form = styled.form`
   padding: 17px;
 `;
 
-const Input = styled.input`
+const Input = styled.textarea`
   height: 55px;
   border: none;
-  font-size: 2em;
+  width: 100%;
+  font-size: 1.6em;
   margin-bottom: 10px;
   &::placeholder {
     font-size: 2em;
@@ -124,7 +126,7 @@ export default function ToDos({ userObj }: any) {
     });
     setToDos('');
   };
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const {
       target: { value },
     } = e;
@@ -135,12 +137,11 @@ export default function ToDos({ userObj }: any) {
       <Helmet>
         <title>Twitter To Do List</title>
       </Helmet>
-      <Form onSubmit={onSubmit}>
+      <Form onSubmit={onSubmit} onKeyPress={(e) => onEnterPress(e, onSubmit)}>
         <ToDoWelcome>To Do List</ToDoWelcome>
         <InputWrapper>
           <Input
             onChange={onChange}
-            type="text"
             placeholder="할 일을 적어주세요"
             value={toDos}
           />

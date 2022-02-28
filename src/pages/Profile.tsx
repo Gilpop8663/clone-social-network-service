@@ -14,6 +14,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage, faX } from '@fortawesome/free-solid-svg-icons';
 import { Helmet } from 'react-helmet';
+import { onEnterPress } from 'utils/utilFn';
 
 const Container = styled.div`
   display: flex;
@@ -184,7 +185,7 @@ interface IProfileProps {
 export default function Profile({ userObj, refreshUser }: IProfileProps) {
   const userName = userObj.displayName ? userObj.displayName : GUEST_NAME;
   const [newDisplayName, setNewDisplayName] = useState(userName);
-  const [profileImg, setProfileImg] = useState('');
+  const [profileImg, setProfileImg] = useState(``);
   const profileRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const onLogoutClick = () => {
@@ -213,7 +214,7 @@ export default function Profile({ userObj, refreshUser }: IProfileProps) {
     }
     await updateProfile(userObj, {
       displayName: newDisplayName,
-      photoURL: profileURL,
+      photoURL: profileURL !== '' ? profileURL : userObj.photoURL,
     });
     refreshUser();
     onClearPhoto();
@@ -253,7 +254,10 @@ export default function Profile({ userObj, refreshUser }: IProfileProps) {
           </UserInfo>
           <EditWrapper>
             <Edit>Edit Profile</Edit>
-            <Form onSubmit={onSubmit}>
+            <Form
+              onSubmit={onSubmit}
+              onKeyPress={(e) => onEnterPress(e, onSubmit)}
+            >
               <InputWrapper>
                 <Input
                   onChange={onChange}
