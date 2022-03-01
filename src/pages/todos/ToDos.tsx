@@ -40,6 +40,7 @@ const Input = styled.textarea`
   border: none;
   width: 100%;
   font-size: 1.6em;
+  resize: none;
   margin-bottom: 10px;
   &::placeholder {
     font-size: 2em;

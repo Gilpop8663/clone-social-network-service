@@ -73,6 +73,7 @@ const EditInput = styled.textarea`
   max-width: 65%;
   width: 65%;
   height: 100%;
+  resize: none;
   max-height: 200px;
   font-size: 1.6em;
   &::placeholder {

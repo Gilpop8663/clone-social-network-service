@@ -77,6 +77,7 @@ const EditForm = styled.form`
 const EditInput = styled.textarea`
   max-width: 65%;
   width: 65%;
+  resize: none;
   height: 100%;
   max-height: 200px;
   font-size: 1.6em;
@@ -192,7 +193,6 @@ export default function ToDo({
   };
 
   const onFinishClick = async () => {
-    console.log(isFinish);
     await updateDoc(toDoRef, {
       isFinish: !isFinish,
     });
