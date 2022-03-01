@@ -123,6 +123,7 @@ export default function ToDos({ userObj }: any) {
       creatorId: userObj.uid,
       userId: userObj.displayName ? userObj.displayName : GUEST_NAME,
       userImage: userObj.photoURL !== null ? userObj.photoURL : GUEST_ICON,
+      isFinish: false,
     });
     setToDos('');
   };
@@ -158,6 +159,7 @@ export default function ToDos({ userObj }: any) {
             userId={item.userId}
             createdAt={item.createdAt}
             userImage={item.userImage}
+            isFinish={item.isFinish}
           />
         ))}
       </ToDosContainer>

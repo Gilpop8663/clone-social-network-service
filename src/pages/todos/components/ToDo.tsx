@@ -12,6 +12,7 @@ interface IToDoProps {
   userId: string;
   createdAt: number | Date;
   userImage: string;
+  isFinish: boolean;
 }
 
 const Container = styled.li<{ isFinish: boolean }>`
@@ -165,10 +166,10 @@ export default function ToDo({
   photoURL,
   createdAt,
   userImage,
+  isFinish,
 }: IToDoProps) {
   const [isEdit, setIsEdit] = useState(false);
   const [editMessage, setEditMessage] = useState(text);
-  const [isFinish, setIsFinish] = useState(false);
   const toDoRef = doc(dbService, TODO, `${id}`);
   const onDeleteClick = async () => {
     const ok = window.confirm('정말 삭제하시겠습니까?');
@@ -190,8 +191,11 @@ export default function ToDo({
     setEditMessage(e.target.value);
   };
 
-  const onFinishClick = () => {
-    setIsFinish((prev) => !prev);
+  const onFinishClick = async () => {
+    console.log(isFinish);
+    await updateDoc(toDoRef, {
+      isFinish: !isFinish,
+    });
   };
   return (
     <Container isFinish={isFinish}>
