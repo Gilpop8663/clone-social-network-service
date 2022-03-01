@@ -120,11 +120,11 @@ export default function ToDos({ userObj }: any) {
     e.preventDefault();
     await addDoc(collection(dbService, TODO), {
       text: toDos,
+      isFinish: false,
       createdAt: Date.now(),
       creatorId: userObj.uid,
       userId: userObj.displayName ? userObj.displayName : GUEST_NAME,
       userImage: userObj.photoURL !== null ? userObj.photoURL : GUEST_ICON,
-      isFinish: false,
     });
     setToDos('');
   };
