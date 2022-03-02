@@ -1,8 +1,8 @@
 import { TODO } from 'constants/constant';
 import { deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import { dateFormater } from 'utils/utilFn';
+import { dateFormater, onEnterPress } from 'utils/utilFn';
 import { dbService } from '../../../firebase';
 
 interface IToDoProps {
@@ -28,6 +28,7 @@ const Container = styled.li<{ isFinish: boolean }>`
 
 const ToDoText = styled.span`
   font-size: 1.6em;
+  white-space: pre-wrap;
   margin-bottom: 20px;
 `;
 
@@ -172,13 +173,21 @@ export default function ToDo({
   const [isEdit, setIsEdit] = useState(false);
   const [editMessage, setEditMessage] = useState(text);
   const toDoRef = doc(dbService, TODO, `${id}`);
+  const editRef = useRef<HTMLTextAreaElement>(null);
   const onDeleteClick = async () => {
     const ok = window.confirm('정말 삭제하시겠습니까?');
     if (ok) {
       await deleteDoc(toDoRef);
     }
   };
-  const onToggleEdit = () => setIsEdit((prev) => !prev);
+  const onToggleEdit = () => {
+    setIsEdit((prev) => !prev);
+    setTimeout(() => {
+      if (editRef.current !== null) {
+        editRef.current.focus();
+      }
+    }, 100);
+  };
 
   const onEditSubmit = async (e: any) => {
     e.preventDefault();
@@ -213,9 +222,14 @@ export default function ToDo({
             </ToDoFinishBtn>
             <ToDoBtn onClick={onToggleEdit}>수정</ToDoBtn>
             {isEdit && (
-              <EditForm onSubmit={onEditSubmit} onMouseLeave={onToggleEdit}>
+              <EditForm
+                onSubmit={onEditSubmit}
+                onMouseLeave={onToggleEdit}
+                onKeyPress={(e) => onEnterPress(e, onEditSubmit)}
+              >
                 <EditInfo>수정 메세지 : </EditInfo>
                 <EditInput
+                  ref={editRef}
                   onChange={onEditChange}
                   required
                   placeholder="수정할 텍스트를 입력해주세요"
