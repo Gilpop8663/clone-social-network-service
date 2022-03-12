@@ -26,6 +26,12 @@ export default function App() {
       <Helmet>
         <title>Twitter</title>
         <meta name="description" content="twitter clone application" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Bebas+Neue&family=Do+Hyeon&family=Handlee&family=Lobster&family=Roboto&family=Sacramento&display=swap"
+          rel="stylesheet"
+        />
       </Helmet>
       <AppRouter
         changeName={changeName}
@@ -33,7 +39,6 @@ export default function App() {
         refreshUser={refreshUser}
         isLoggedIn={Boolean(userObj)}
       />
-      <Footer />
     </>
   );
 }
