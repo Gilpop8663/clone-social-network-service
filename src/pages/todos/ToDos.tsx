@@ -20,6 +20,7 @@ import {
 import { Helmet } from 'react-helmet';
 import { onEnterPress } from 'utils/utilFn';
 import { EDIT, FLAG, PLUS, TO_DO_LEE, TRASH } from 'assets';
+import { useForm } from 'react-hook-form';
 
 const Container = styled.div`
   display: flex;
@@ -70,19 +71,19 @@ const Month = styled.div`
     background: #ffef9d;
   }
   &:nth-child(3) {
-    background: #ffef9d;
+    background: #ffc01d;
   }
   &:nth-child(4) {
-    background: #ffef9d;
+    background: #fff4cf;
   }
   &:nth-child(5) {
-    background: #ffef9d;
+    background: #ffd9a0;
   }
   &:nth-child(6) {
     background: #ffaa29;
   }
   &:nth-child(7) {
-    background: #ffef9d;
+    background: #8c5955;
   }
   &:nth-child(8) {
     background: #b77874;
@@ -91,18 +92,18 @@ const Month = styled.div`
     background: #fff1db;
   }
   &:nth-child(10) {
-    background: #ffef9d;
+    background: #ffb8b4;
   }
   &:nth-child(11) {
-    background: #ffef9d;
+    background: #ffffff;
   }
   &:nth-child(12) {
     background: #b77874;
   }
 `;
 
-const CalendarBackground = styled.div`
-  background: #ffd9a0;
+const CalendarBackground = styled.div<{ monthColor: string }>`
+  background: ${({ monthColor }) => monthColor};
   z-index: -1;
   position: absolute;
   bottom: 0px;
@@ -165,7 +166,7 @@ const CalenderMonthGrid = styled.div`
   height: 100%;
 `;
 
-const Day = styled.h5`
+const Day = styled.h5<{ isMinus: boolean; isToday: boolean }>`
   font-family: 'Handlee';
   font-style: normal;
   font-weight: 400;
@@ -179,8 +180,8 @@ const Day = styled.h5`
   height: 100%;
 
   border-radius: 2px;
-  background: #ffffff;
-  color: #000000;
+  background: ${({ isMinus }) => (isMinus ? 'inherit' : '#ffffff')};
+  color: ${({ isToday }) => (isToday ? 'red' : 'black')};
 `;
 
 const ToDoTitle = styled.h1`
@@ -241,23 +242,15 @@ const ListTitleGrid = styled.div`
   grid-template-columns: repeat(5, 1fr);
 `;
 
-const ListTitle = styled.h2`
+const ListTitleWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-
-  font-family: 'Amatic SC';
-  font-style: normal;
-  font-weight: 700;
-  font-size: 30px;
-  line-height: 38px;
-  /* identical to box height */
-
+  position: relative;
+  height: 100%;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   text-align: center;
-  letter-spacing: -0.045em;
-
   color: #ffffff;
   &:first-child {
     background: #e4e1ce;
@@ -276,6 +269,17 @@ const ListTitle = styled.h2`
   }
 `;
 
+const ListTitle = styled.h2`
+  font-family: 'Amatic SC';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 38px;
+  /* identical to box height */
+
+  letter-spacing: -0.045em;
+`;
+
 const CreateList = styled.div`
   border: 3px dashed #858585;
   box-sizing: border-box;
@@ -283,63 +287,23 @@ const CreateList = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  cursor: pointer;
 `;
 
 const DoList = styled.div`
   display: grid;
-  grid-template-rows: repeat(8, minmax(60px, 1fr));
+  grid-template-rows: repeat(8, 1fr);
+  gap: 8px;
   padding: 35px;
   z-index: 2;
-`;
-
-const ListItem = styled.div`
-  background: #ffffff;
-  border-radius: 10px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0px 23px;
-
-  color: #000000;
-`;
-
-const ItemText = styled.span`
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 400;
-  font-size: 15px;
-  line-height: 18px;
-  display: flex;
-  align-items: center;
-  text-align: center;
-
-  color: #000000;
-`;
-
-const IconWrapper = styled.div`
-  width: 120px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const Icon = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 30px;
-  height: 30px;
-  background: #d0cfc9;
-  border-radius: 6px;
 `;
 
 const TodayBackground = styled.div`
   background: #e4e1ce;
   position: absolute;
-  bottom: 0px;
+  top: 60px;
   width: 100%;
-  height: 90.25%;
+  height: 92%;
   z-index: 1;
   border-radius: 10px;
 `;
@@ -362,11 +326,10 @@ const TodayForm = styled.form`
   height: 118px;
 `;
 
-const TodayInput = styled.textarea`
+const TodayInput = styled.input`
   width: 422px;
   height: 75px;
 
-  flex-direction: ;
   font-family: 'Handlee';
   font-style: normal;
   font-weight: 400;
@@ -386,7 +349,7 @@ const TodayInput = styled.textarea`
   }
 `;
 
-const ListCompletedToday = styled.div`
+const ListCompletedToday = styled(ListDoToday)`
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -434,14 +397,74 @@ const FooterbyDesigner = styled.h6`
 `;
 
 const Img = styled.img``;
+
+const EditForm = styled.form`
+  background-color: white;
+  width: 80px;
+  height: 60px;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+`;
+
+const EditInput = styled.input`
+  width: 100px;
+  height: 20px;
+  background-color: inherit;
+  border: none;
+`;
+
+interface IEdit {
+  edit: string;
+}
+
+const monthColor = [
+  '#ffd74a',
+  '#ffef9d',
+  '#ffc01d',
+  '#fff4cf',
+  '#ffd9a0',
+  '#ffaa29',
+  '#8c5955',
+  '#b77874',
+  '#fff1db',
+  '#ffb8b4',
+  '#ffffff',
+  '#b77874',
+];
+
 export default function ToDos({ userObj }: any) {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<IEdit>();
   const [toDos, setToDos] = useState('');
   const [toDoList, setToDoList] = useState<any>([]);
+  const [category, setCategory] = useState('');
+  const [isEditCategory, setIsEditCategory] = useState(false);
+  const [userMonth, setUserMonth] = useState(
+    new Date(Date.now()).getMonth() + 1
+  );
+  const [userYear, setUserYear] = useState(new Date(Date.now()).getFullYear());
+  const [dateList, setDateList] = useState<number[]>([]);
+  const todayDate = `${userYear}${
+    userMonth < 10 ? `0${userMonth}` : userMonth
+  }${
+    new Date(Date.now()).getDate() < 10
+      ? `0${new Date(Date.now()).getDate()}`
+      : new Date(Date.now()).getDate()
+  }`;
+  const [userDate, setUserDate] = useState(todayDate);
 
   useEffect(() => {
     const q = query(
       collection(dbService, TODO),
       where(CREATOR_ID, '==', `${userObj.uid}`),
+      where('createdDate', '==', `${userDate}`),
       orderBy(CREATED_AT, 'desc')
     );
     onSnapshot(q, async (snapshot) => {
@@ -463,18 +486,71 @@ export default function ToDos({ userObj }: any) {
       text: toDos,
       isFinish: false,
       createdAt: Date.now(),
+      createdDate: todayDate,
       creatorId: userObj.uid,
-      userId: userObj.displayName ? userObj.displayName : GUEST_NAME,
-      userImage: userObj.photoURL !== null ? userObj.photoURL : GUEST_ICON,
     });
     setToDos('');
   };
-  const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
       target: { value },
     } = e;
     setToDos(value);
   };
+
+  const onCategoryClick = (e: any) => {
+    const { target: value } = e;
+    setCategory(value.innerText);
+    setIsEditCategory((prev) => !prev);
+  };
+
+  const onEditSubmit = handleSubmit((data) => {
+    console.log(data.edit);
+    // setCategory(data.edit);
+    setIsEditCategory(false);
+  });
+
+  const onClickMonth = (e: React.MouseEvent<HTMLDivElement>) => {
+    const {
+      currentTarget: { innerText },
+    } = e;
+    if (!innerText) return;
+    setUserMonth(+innerText);
+    setUserDate('');
+    getCalenderMonth(+innerText);
+  };
+
+  const getCalenderMonth = (month: number) => {
+    const date = Date.now();
+    const year = new Date(date).getFullYear();
+
+    const nowDate = new Date(year, month, 0).getDate();
+    const nowDay = new Date(year, month, -nowDate + 1).getDay();
+
+    const nowCallender = Array.from({ length: nowDate }, (_, i) => i + 1);
+    const setDayCallender = Array.from(
+      { length: nowDay === 0 ? 6 : nowDay - 1 },
+      (_, i) => i - 51
+    );
+    const callenderArr = [...setDayCallender, ...nowCallender];
+    setDateList(callenderArr);
+    return callenderArr;
+  };
+
+  const getClickDate = (e: React.MouseEvent<HTMLDivElement>) => {
+    const {
+      currentTarget: { innerText },
+    } = e;
+    if (!innerText) return;
+    const date = `${userYear}${userMonth < 10 ? `0${userMonth}` : userMonth}${
+      +innerText < 10 ? `0${innerText}` : innerText
+    }`;
+    setUserDate(date);
+  };
+  useEffect(() => {
+    getCalenderMonth(userMonth);
+  }, []);
+
   return (
     <Container>
       <Helmet>
@@ -483,18 +559,11 @@ export default function ToDos({ userObj }: any) {
       <GridContainer>
         <Calendar>
           <MonthList>
-            <Month>1</Month>
-            <Month>2</Month>
-            <Month>3</Month>
-            <Month>4</Month>
-            <Month>5</Month>
-            <Month>6</Month>
-            <Month>7</Month>
-            <Month>8</Month>
-            <Month>9</Month>
-            <Month>10</Month>
-            <Month>11</Month>
-            <Month>12</Month>
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((item) => (
+              <Month key={item} onClick={onClickMonth}>
+                {item}
+              </Month>
+            ))}
           </MonthList>
           <CalenderWrapper>
             <CalenderContent>
@@ -508,13 +577,20 @@ export default function ToDos({ userObj }: any) {
                 <CalendarDay>sun</CalendarDay>
               </CalendarDayGrid>
               <CalenderMonthGrid>
-                {Array.from({ length: 35 }, (_, i) => i + 1).map((item) => (
-                  <Day key={item}>{item}</Day>
+                {dateList.map((item) => (
+                  <Day
+                    isMinus={item < 0}
+                    key={item}
+                    onClick={getClickDate}
+                    isToday={+userDate.slice(-2) === item}
+                  >
+                    {item > 0 && item}
+                  </Day>
                 ))}
               </CalenderMonthGrid>
             </CalenderContent>
           </CalenderWrapper>
-          <CalendarBackground />
+          <CalendarBackground monthColor={monthColor[userMonth - 1]} />
         </Calendar>
         <ToDoTitle>
           <Img src={TO_DO_LEE} alt="todoList_title" />
@@ -525,33 +601,49 @@ export default function ToDos({ userObj }: any) {
         </Achievement>
         <ListDoToday>
           <ListTitleGrid>
-            <ListTitle>여행</ListTitle>
-            <ListTitle>음식</ListTitle>
-            <ListTitle>공부</ListTitle>
-            <ListTitle>재테크</ListTitle>
-            <ListTitle>취미</ListTitle>
+            <ListTitleWrapper>
+              <ListTitle onClick={onCategoryClick}>To Do List</ListTitle>
+              {isEditCategory && (
+                <EditForm onSubmit={onEditSubmit}>
+                  <EditInput
+                    {...register('edit')}
+                    defaultValue={category}
+                    type="text"
+                  />
+                </EditForm>
+              )}
+            </ListTitleWrapper>
+            <CreateList>
+              <Img src={PLUS} />
+            </CreateList>
           </ListTitleGrid>
           <DoList>
-            <ListItem>
-              <ItemText>돼지 갈비 양념하기</ItemText>
-              <IconWrapper>
-                <Icon>
-                  <Img src={TRASH} alt="delete" />
-                </Icon>
-                <Icon>
-                  <Img src={FLAG} alt="finish" />
-                </Icon>
-                <Icon>
-                  <Img src={EDIT} alt="edit" />
-                </Icon>
-              </IconWrapper>
-            </ListItem>
+            {toDoList
+              .filter((item: any) => item.isFinish === false)
+              .map((item: any) => (
+                <ToDo
+                  key={item.id}
+                  id={item.id}
+                  text={item.text}
+                  isFinish={item.isFinish}
+                />
+              ))}
           </DoList>
           <TodayBackground />
         </ListDoToday>
         <WhatDoToday>
-          <TodayForm>
-            <TodayInput placeholder={PLACEHOLDER} />
+          <TodayForm
+            onSubmit={onSubmit}
+            onKeyPress={(e) => onEnterPress(e, onSubmit)}
+          >
+            <TodayInput
+              disabled={toDoList.length > 7}
+              type="text"
+              maxLength={15}
+              onChange={onChange}
+              value={toDos}
+              placeholder={PLACEHOLDER}
+            />
           </TodayForm>
           <Footer>
             <FooterInfo>
@@ -565,25 +657,18 @@ export default function ToDos({ userObj }: any) {
         <ListCompletedToday>
           <ListTitleGrid>
             <ListTitle>여행</ListTitle>
-            <CreateList>
-              <Img src={PLUS} alt="add_List" />
-            </CreateList>
           </ListTitleGrid>
           <DoList>
-            <ListItem>
-              <ItemText>돼지 갈비 양념하기</ItemText>
-              <IconWrapper>
-                <Icon>
-                  <Img src={TRASH} alt="delete" />
-                </Icon>
-                <Icon>
-                  <Img src={FLAG} alt="finish" />
-                </Icon>
-                <Icon>
-                  <Img src={EDIT} alt="edit" />
-                </Icon>
-              </IconWrapper>
-            </ListItem>
+            {toDoList
+              .filter((item: any) => item.isFinish === true)
+              .map((item: any) => (
+                <ToDo
+                  key={item.id}
+                  id={item.id}
+                  text={item.text}
+                  isFinish={item.isFinish}
+                />
+              ))}
           </DoList>
           <TodayBackground />
         </ListCompletedToday>
