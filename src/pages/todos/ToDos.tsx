@@ -548,7 +548,6 @@ export default function ToDos({ userObj }: any) {
     }
   }, [userObj.uid, userDate]);
 
-  console.log(category);
   const PLACEHOLDER = "\nToday's to-do.";
 
   const onListChangeClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -616,6 +615,21 @@ export default function ToDos({ userObj }: any) {
       ...toDoList[0].categoryList,
       { id: uuidv4(), title: 'To Do List', list: [] },
     ];
+
+    await setDoc(doc(dbService, 'test', `${userObj.uid}`), {
+      user: userObj.uid,
+      toDoList: [
+        {
+          createdDate: todayDate,
+          categoryList: newCategory,
+        },
+      ],
+    });
+  };
+
+  const allNewCategory = async () => {
+    if (userDate !== todayDate) return;
+    const newCategory = [{ id: uuidv4(), title: 'To Do List', list: [] }];
 
     await setDoc(doc(dbService, 'test', `${userObj.uid}`), {
       user: userObj.uid,
@@ -698,7 +712,12 @@ export default function ToDos({ userObj }: any) {
     if (category === 'To Do List' || category === undefined) {
       setCategory(toDoList[0]?.categoryList[0]?.id);
     }
+    if (toDoList.length === 0 && refetch) {
+      allNewCategory();
+    }
   }, [refetch]);
+
+  console.log(category);
 
   if (!toDoList) return null;
 
