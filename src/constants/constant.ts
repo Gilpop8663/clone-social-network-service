@@ -7,6 +7,7 @@ export const GITHUB = 'github';
 //CATEGORY
 export const TODO = 'toDo';
 export const MESSAGES = 'messages';
+export const TO_DO_LIST = 'toDoList';
 
 //INFO
 export const CREATED_AT = 'createdAt';

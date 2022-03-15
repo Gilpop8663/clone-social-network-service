@@ -1,5 +1,5 @@
 import { EDIT, FLAG, TRASH } from 'assets';
-import { TODO } from 'constants/constant';
+import { TODO, TO_DO_LIST } from 'constants/constant';
 import { deleteDoc, doc, setDoc, updateDoc, where } from 'firebase/firestore';
 import { useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -120,14 +120,13 @@ export default function ToDo({
       ...categoryList.slice(findIndex + 1),
     ];
 
-    await setDoc(doc(dbService, 'test', `${userObj.uid}`), {
+    await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
       user: userObj.uid,
-      toDoList: [
-        {
-          createdDate: todayDate,
-          categoryList: newArr,
-        },
-      ],
+      createdDate: userDate,
+      toDoList: {
+        createdDate: userDate,
+        categoryList: newArr,
+      },
     });
     setIsEdit(false);
   };
@@ -149,14 +148,13 @@ export default function ToDo({
     ];
     const ok = window.confirm('정말 삭제하시겠습니까?');
     if (ok) {
-      await setDoc(doc(dbService, 'test', `${userObj.uid}`), {
+      await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
         user: userObj.uid,
-        toDoList: [
-          {
-            createdDate: todayDate,
-            categoryList: newArr,
-          },
-        ],
+        createdDate: userDate,
+        toDoList: {
+          createdDate: userDate,
+          categoryList: newArr,
+        },
       });
     }
   };
@@ -178,14 +176,13 @@ export default function ToDo({
       ...categoryList.slice(findIndex + 1),
     ];
 
-    await setDoc(doc(dbService, 'test', `${userObj.uid}`), {
+    await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
       user: userObj.uid,
-      toDoList: [
-        {
-          createdDate: todayDate,
-          categoryList: newArr,
-        },
-      ],
+      createdDate: userDate,
+      toDoList: {
+        createdDate: userDate,
+        categoryList: newArr,
+      },
     });
   };
 
