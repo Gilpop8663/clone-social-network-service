@@ -1,8 +1,8 @@
 import Footer from 'components/Footer';
 import { authService } from './firebase';
 import { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet';
 import AppRouter from 'router/AppRouter';
+import { HelmetProvider, Helmet } from 'react-helmet-async';
 
 export default function App() {
   const [userObj, setUserObj] = useState<object | null>(null);
@@ -22,7 +22,7 @@ export default function App() {
   };
 
   return (
-    <>
+    <HelmetProvider>
       <Helmet>
         <title>Twitter</title>
         <meta name="description" content="twitter clone application" />
@@ -39,6 +39,6 @@ export default function App() {
         refreshUser={refreshUser}
         isLoggedIn={Boolean(userObj)}
       />
-    </>
+    </HelmetProvider>
   );
 }

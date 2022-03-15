@@ -2,9 +2,12 @@ import React, { useEffect, useState } from 'react';
 import {
   addDoc,
   collection,
+  doc,
   onSnapshot,
   orderBy,
   query,
+  setDoc,
+  updateDoc,
   where,
 } from 'firebase/firestore';
 import { dbService } from '../../firebase';
@@ -15,12 +18,17 @@ import {
   CREATOR_ID,
   GUEST_ICON,
   GUEST_NAME,
+  HOME_URL,
   TODO,
 } from 'constants/constant';
-import { Helmet } from 'react-helmet';
 import { onEnterPress } from 'utils/utilFn';
 import { EDIT, FLAG, PLUS, TO_DO_LEE, TRASH } from 'assets';
 import { useForm } from 'react-hook-form';
+import { v4 as uuidv4 } from 'uuid';
+import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 
 const Container = styled.div`
   display: flex;
@@ -32,8 +40,9 @@ const Container = styled.div`
 
 const GridContainer = styled.div`
   width: 100%;
+  height: 97vh;
   display: grid;
-  gap: 15px;
+  gap: 25px;
   grid-template-columns: 1.2fr 1fr 1.2fr;
   grid-template-rows: 1fr 2fr;
 `;
@@ -64,6 +73,8 @@ const Month = styled.div`
   line-height: 30px;
   text-align: center;
   color: #644040;
+
+  cursor: pointer;
   &:first-child {
     background: #ffd74a;
   }
@@ -182,6 +193,7 @@ const Day = styled.h5<{ isMinus: boolean; isToday: boolean }>`
   border-radius: 2px;
   background: ${({ isMinus }) => (isMinus ? 'inherit' : '#ffffff')};
   color: ${({ isToday }) => (isToday ? 'red' : 'black')};
+  cursor: pointer;
 `;
 
 const ToDoTitle = styled.h1`
@@ -252,6 +264,8 @@ const ListTitleWrapper = styled.div`
   border-top-right-radius: 10px;
   text-align: center;
   color: #ffffff;
+  cursor: pointer;
+
   &:first-child {
     background: #e4e1ce;
   }
@@ -259,7 +273,7 @@ const ListTitleWrapper = styled.div`
     background: #c6b8d8;
   }
   &:nth-child(3) {
-    background: #c6b8d8;
+    background: #b77874;
   }
   &:nth-child(4) {
     background: #b8d8d0;
@@ -298,8 +312,8 @@ const DoList = styled.div`
   z-index: 2;
 `;
 
-const TodayBackground = styled.div`
-  background: #e4e1ce;
+const TodayBackground = styled.div<{ listWrapperColor: string }>`
+  background: ${({ listWrapperColor }) => listWrapperColor};
   position: absolute;
   top: 60px;
   width: 100%;
@@ -379,6 +393,8 @@ const FooterInfo = styled.div`
 
 const MyLink = styled.a`
   margin-right: 10px;
+  text-decoration: none;
+  color: black;
 `;
 
 const FooterText = styled.h6``;
@@ -399,7 +415,7 @@ const FooterbyDesigner = styled.h6`
 const Img = styled.img``;
 
 const EditForm = styled.form`
-  background-color: white;
+  background-color: inherit;
   width: 80px;
   height: 60px;
   position: absolute;
@@ -410,10 +426,23 @@ const EditForm = styled.form`
 `;
 
 const EditInput = styled.input`
-  width: 100px;
+  width: 80px;
   height: 20px;
   background-color: inherit;
-  border: none;
+`;
+
+const Icon = styled.div`
+  margin-right: 10px;
+  @media only screen and (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const HomeLink = styled.div`
+  justify-self: flex-start;
+  a {
+    color: black;
+  }
 `;
 
 interface IEdit {
@@ -435,6 +464,36 @@ const monthColor = [
   '#b77874',
 ];
 
+const listWrapperColor = [
+  '#e4e1ce',
+  '#c6b8d8',
+  '#b77874',
+  '#b8d8d0',
+  '#d8c7b8',
+];
+
+interface IToDoProps {
+  toDoList: [
+    {
+      createdDate: string;
+      categoryList: ICategory[];
+    }
+  ];
+}
+
+export interface ICategory {
+  id: string;
+  title: string;
+  list: IToDo[];
+}
+
+interface IToDo {
+  id: string;
+  text: string;
+  isFinish: boolean;
+  createdAt: Date | number;
+}
+
 export default function ToDos({ userObj }: any) {
   const {
     register,
@@ -444,7 +503,11 @@ export default function ToDos({ userObj }: any) {
   } = useForm<IEdit>();
   const [toDos, setToDos] = useState('');
   const [toDoList, setToDoList] = useState<any>([]);
-  const [category, setCategory] = useState('');
+  const [category, setCategory] = useState(
+    toDoList[0]?.categoryList[0]?.id
+      ? toDoList[0]?.categoryList[0]?.id
+      : 'To Do List'
+  );
   const [isEditCategory, setIsEditCategory] = useState(false);
   const [userMonth, setUserMonth] = useState(
     new Date(Date.now()).getMonth() + 1
@@ -459,38 +522,82 @@ export default function ToDos({ userObj }: any) {
       : new Date(Date.now()).getDate()
   }`;
   const [userDate, setUserDate] = useState(todayDate);
+  const [refetch, setRefetch] = useState(false);
 
   useEffect(() => {
     const q = query(
-      collection(dbService, TODO),
-      where(CREATOR_ID, '==', `${userObj.uid}`),
-      where('createdDate', '==', `${userDate}`),
-      orderBy(CREATED_AT, 'desc')
+      collection(dbService, `test`),
+      where('user', '==', `${userObj.uid}`)
     );
     onSnapshot(q, async (snapshot) => {
       const toDosArr = snapshot.docs.map((item: any) => {
         return {
-          id: item.id,
           ...item.data(),
         };
       });
-      setToDoList(toDosArr);
+      setToDoList(
+        toDosArr[0].toDoList.filter(
+          (item: any) => item.createdDate === userDate
+        )
+      );
     });
-  }, [userObj.uid]);
+    if (refetch === false) {
+      setTimeout(() => {
+        setRefetch(true);
+      }, 450);
+    }
+  }, [userObj.uid, userDate]);
 
+  console.log(category);
   const PLACEHOLDER = "\nToday's to-do.";
+
+  const onListChangeClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const {
+      currentTarget: { id },
+    } = e;
+    setCategory(id);
+  };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await addDoc(collection(dbService, TODO), {
-      text: toDos,
-      isFinish: false,
-      createdAt: Date.now(),
-      createdDate: todayDate,
-      creatorId: userObj.uid,
+    if (toDos === '') return;
+
+    const toDoCategory = toDoList[0].categoryList;
+    const findIndex = toDoCategory.findIndex(
+      (item: any) => item.id === category
+    );
+    if (findIndex === -1) return;
+
+    const newArr = [
+      ...toDoCategory.slice(0, findIndex),
+      {
+        ...toDoCategory[findIndex],
+        list: [
+          ...toDoCategory[findIndex]?.list,
+          {
+            id: uuidv4(),
+            text: toDos,
+            isFinish: false,
+            createdAt: Date.now(),
+            categoryId: category,
+          },
+        ],
+      },
+      ...toDoCategory.slice(findIndex + 1),
+    ];
+
+    await setDoc(doc(dbService, 'test', `${userObj.uid}`), {
+      user: userObj.uid,
+      toDoList: [
+        {
+          createdDate: todayDate,
+          categoryList: newArr,
+        },
+      ],
     });
     setToDos('');
   };
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
       target: { value },
@@ -498,15 +605,53 @@ export default function ToDos({ userObj }: any) {
     setToDos(value);
   };
 
-  const onCategoryClick = (e: any) => {
-    const { target: value } = e;
-    setCategory(value.innerText);
-    setIsEditCategory((prev) => !prev);
+  const onEditCategoryClick = (id: string) => {
+    setIsEditCategory(true);
+    setCategory(id);
   };
 
-  const onEditSubmit = handleSubmit((data) => {
-    console.log(data.edit);
-    // setCategory(data.edit);
+  const onCreateCategory = async () => {
+    if (userDate !== todayDate) return;
+    const newCategory = [
+      ...toDoList[0].categoryList,
+      { id: uuidv4(), title: 'To Do List', list: [] },
+    ];
+
+    await setDoc(doc(dbService, 'test', `${userObj.uid}`), {
+      user: userObj.uid,
+      toDoList: [
+        {
+          createdDate: todayDate,
+          categoryList: newCategory,
+        },
+      ],
+    });
+  };
+
+  const onEditSubmit = handleSubmit(async (data) => {
+    const toDoCategory = toDoList[0].categoryList;
+    const findIndex = toDoCategory.findIndex(
+      (item: any) => item.id === category
+    );
+    const newArr = [
+      ...toDoCategory.slice(0, findIndex),
+      {
+        id: category,
+        title: data.edit,
+        list: toDoCategory[findIndex].list,
+      },
+      ...toDoCategory.slice(findIndex + 1),
+    ];
+    await setDoc(doc(dbService, 'test', `${userObj.uid}`), {
+      user: userObj.uid,
+      toDoList: [
+        {
+          createdDate: todayDate,
+          categoryList: newArr,
+        },
+      ],
+    });
+
     setIsEditCategory(false);
   });
 
@@ -547,14 +692,42 @@ export default function ToDos({ userObj }: any) {
     }`;
     setUserDate(date);
   };
+
   useEffect(() => {
     getCalenderMonth(userMonth);
-  }, []);
+    if (category === 'To Do List' || category === undefined) {
+      setCategory(toDoList[0]?.categoryList[0]?.id);
+    }
+  }, [refetch]);
 
+  if (!toDoList) return null;
+
+  const userToDoData = (isFinish: boolean) => {
+    return toDoList[0]?.categoryList
+      ?.filter((item: any) => item.id === category)[0]
+      ?.list.filter((item: any) => item.isFinish === isFinish)
+      ? toDoList[0]?.categoryList
+          ?.filter((item: any) => item.id === category)[0]
+          ?.list.filter((item: any) => item.isFinish === isFinish)
+      : toDoList[0]?.categoryList[0].list.filter(
+          (item: any) => item.isFinish === isFinish
+        );
+  };
+
+  const totalList = toDoList[0]?.categoryList?.reduce((sum: any, item: any) => {
+    return sum + item?.list?.length;
+  }, 0);
+  const finishList = toDoList[0]?.categoryList?.reduce(
+    (sum: any, item: any) => {
+      const list = item.list.filter((item: any) => item.isFinish === true);
+      return sum + list.length;
+    },
+    0
+  );
   return (
     <Container>
       <Helmet>
-        <title>Twitter To Do List</title>
+        <title>To Do List</title>
       </Helmet>
       <GridContainer>
         <Calendar>
@@ -597,39 +770,63 @@ export default function ToDos({ userObj }: any) {
         </ToDoTitle>
         <Achievement>
           <AchievementText>Achievement rate</AchievementText>
-          <AchievementRate>100%</AchievementRate>
+          <AchievementRate>
+            {totalList ? ((finishList / totalList) * 100).toFixed(0) : 0}%
+          </AchievementRate>
         </Achievement>
         <ListDoToday>
           <ListTitleGrid>
-            <ListTitleWrapper>
-              <ListTitle onClick={onCategoryClick}>To Do List</ListTitle>
-              {isEditCategory && (
-                <EditForm onSubmit={onEditSubmit}>
-                  <EditInput
-                    {...register('edit')}
-                    defaultValue={category}
-                    type="text"
-                  />
-                </EditForm>
-              )}
-            </ListTitleWrapper>
-            <CreateList>
-              <Img src={PLUS} />
-            </CreateList>
+            {toDoList[0]?.categoryList.map((item: any) => (
+              <ListTitleWrapper key={item.id}>
+                <ListTitle
+                  id={item.id}
+                  onClick={onListChangeClick}
+                  onDoubleClick={() => onEditCategoryClick(item.id)}
+                >
+                  {item.title}
+                </ListTitle>
+                {isEditCategory && category === item.id && (
+                  <EditForm onSubmit={onEditSubmit}>
+                    <EditInput {...register('edit')} type="text" />
+                  </EditForm>
+                )}
+              </ListTitleWrapper>
+            ))}
+            {userDate === todayDate && toDoList[0]?.categoryList?.length < 5 && (
+              <CreateList onClick={onCreateCategory}>
+                <Img src={PLUS} />
+              </CreateList>
+            )}
           </ListTitleGrid>
           <DoList>
-            {toDoList
-              .filter((item: any) => item.isFinish === false)
-              .map((item: any) => (
-                <ToDo
-                  key={item.id}
-                  id={item.id}
-                  text={item.text}
-                  isFinish={item.isFinish}
-                />
-              ))}
+            {userToDoData(false)?.map((item: any) => (
+              <ToDo
+                key={item.id}
+                id={item.id}
+                text={item.text}
+                categoryId={category}
+                createdDate={todayDate}
+                isFinish={item.isFinish}
+                userObj={userObj}
+                categoryList={toDoList[0].categoryList}
+                todayDate={todayDate}
+                userDate={userDate}
+              />
+            ))}
           </DoList>
-          <TodayBackground />
+          <TodayBackground
+            listWrapperColor={
+              toDoList[0]?.categoryList.findIndex(
+                (item: any) => item.id === category
+              ) !== -1
+                ? listWrapperColor[
+                    toDoList[0]?.categoryList.findIndex(
+                      (item: any) => item.id === category
+                    )
+                  ]
+                : listWrapperColor[0]
+            }
+          />
         </ListDoToday>
         <WhatDoToday>
           <TodayForm
@@ -637,18 +834,44 @@ export default function ToDos({ userObj }: any) {
             onKeyPress={(e) => onEnterPress(e, onSubmit)}
           >
             <TodayInput
-              disabled={toDoList.length > 7}
+              disabled={
+                toDoList[0]?.categoryList?.filter(
+                  (item: any) => item.id === category
+                )[0]?.list.length > 7 || userDate !== todayDate
+              }
               type="text"
               maxLength={15}
               onChange={onChange}
               value={toDos}
-              placeholder={PLACEHOLDER}
+              placeholder={
+                toDoList[0]?.categoryList?.filter(
+                  (item: any) => item.id === category
+                )[0]?.list.length > 7
+                  ? '최대 8개까지 적을 수 있습니다'
+                  : userDate !== todayDate
+                  ? '오늘만 추가할 수 있습니다'
+                  : PLACEHOLDER
+              }
             />
           </TodayForm>
+          <HomeLink>
+            <Link to={HOME_URL}>
+              <Icon>
+                <FontAwesomeIcon size="2x" icon={faHome} />
+              </Icon>
+            </Link>
+          </HomeLink>
           <Footer>
             <FooterInfo>
-              <MyLink>Blog</MyLink>
-              <MyLink>Github</MyLink>
+              <MyLink
+                href="https://hell-of-company-builder.tistory.com/"
+                target="_blank"
+              >
+                Blog
+              </MyLink>
+              <MyLink href="https://github.com/Gilpop8663" target="_blank">
+                Github
+              </MyLink>
               <FooterText>{new Date(Date.now()).getFullYear()}</FooterText>
             </FooterInfo>
             <FooterbyDesigner>design by dayaya</FooterbyDesigner>
@@ -656,21 +879,47 @@ export default function ToDos({ userObj }: any) {
         </WhatDoToday>
         <ListCompletedToday>
           <ListTitleGrid>
-            <ListTitle>여행</ListTitle>
+            {toDoList[0]?.categoryList.map((item: any) => (
+              <ListTitleWrapper key={item.id}>
+                <ListTitle
+                  id={item.id}
+                  onClick={onListChangeClick}
+                  onDoubleClick={() => onEditCategoryClick(item.id)}
+                >
+                  {item.title}
+                </ListTitle>
+              </ListTitleWrapper>
+            ))}
           </ListTitleGrid>
           <DoList>
-            {toDoList
-              .filter((item: any) => item.isFinish === true)
-              .map((item: any) => (
-                <ToDo
-                  key={item.id}
-                  id={item.id}
-                  text={item.text}
-                  isFinish={item.isFinish}
-                />
-              ))}
+            {userToDoData(true)?.map((item: any) => (
+              <ToDo
+                key={item.id}
+                id={item.id}
+                categoryId={category}
+                createdDate={todayDate}
+                text={item.text}
+                isFinish={item.isFinish}
+                userObj={userObj}
+                categoryList={toDoList[0].categoryList}
+                todayDate={todayDate}
+                userDate={userDate}
+              />
+            ))}
           </DoList>
-          <TodayBackground />
+          <TodayBackground
+            listWrapperColor={
+              toDoList[0]?.categoryList.findIndex(
+                (item: any) => item.id === category
+              ) !== -1
+                ? listWrapperColor[
+                    toDoList[0]?.categoryList.findIndex(
+                      (item: any) => item.id === category
+                    )
+                  ]
+                : listWrapperColor[0]
+            }
+          />
         </ListCompletedToday>
       </GridContainer>
     </Container>

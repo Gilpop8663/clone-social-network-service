@@ -7,6 +7,7 @@ import { CREATED_AT, MESSAGES } from 'constants/constant';
 import MessageForm from './components/MessageForm';
 import Message from './components/Message';
 import { Helmet } from 'react-helmet';
+import Navigation from 'components/Navigation';
 
 const Container = styled.div`
   width: 100vw;
@@ -49,6 +50,7 @@ export default function Home({ userObj }: IUserObjProps) {
       <Helmet>
         <title>Twitter Home</title>
       </Helmet>
+      <Navigation userObj={userObj} />
       <MessageForm userObj={userObj} />
       <MessageWrapper>
         {messageList.map((item: IMessageListProps) => (
