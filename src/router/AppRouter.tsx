@@ -30,7 +30,7 @@ export default function AppRouter({
 
   return (
     <BrowserRouter basename={process.env.PUBLIC_URL}>
-      <Navigation userObj={userObj} />
+      {/* <Navigation userObj={userObj} /> */}
       <Routes>
         <Route path={HOME_URL} element={<Home userObj={userObj} />} />
         <Route

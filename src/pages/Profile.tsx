@@ -15,6 +15,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage, faX } from '@fortawesome/free-solid-svg-icons';
 import { Helmet } from 'react-helmet';
 import { onEnterPress } from 'utils/utilFn';
+import Navigation from 'components/Navigation';
 
 const Container = styled.div`
   display: flex;
@@ -243,6 +244,7 @@ export default function Profile({ userObj, refreshUser }: IProfileProps) {
       <Helmet>
         <title>Twitter Profile</title>
       </Helmet>
+      <Navigation userObj={userObj} />
       <BackImg />
       <FormWrapper>
         <UserImg
