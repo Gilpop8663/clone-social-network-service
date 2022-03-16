@@ -17,6 +17,8 @@ interface IToDoProps {
   todayDate: string;
   categoryList: ICategory[];
   userDate: string;
+  allToDoList: any;
+  userDateFindIndex: number;
 }
 
 const ListItem = styled.div`
@@ -83,6 +85,8 @@ export default function ToDo({
   categoryList,
   todayDate,
   userDate,
+  allToDoList,
+  userDateFindIndex,
 }: IToDoProps) {
   const [isEdit, setIsEdit] = useState(false);
   const [editMessage, setEditMessage] = useState(text);
@@ -122,11 +126,14 @@ export default function ToDo({
 
     await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
       user: userObj.uid,
-      createdDate: userDate,
-      toDoList: {
-        createdDate: userDate,
-        categoryList: newArr,
-      },
+      toDoList: [
+        ...allToDoList.slice(0, userDateFindIndex),
+        {
+          createdDate: userDate,
+          categoryList: newArr,
+        },
+        ...allToDoList.slice(userDateFindIndex + 1),
+      ],
     });
     setIsEdit(false);
   };
@@ -150,11 +157,14 @@ export default function ToDo({
     if (ok) {
       await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
         user: userObj.uid,
-        createdDate: userDate,
-        toDoList: {
-          createdDate: userDate,
-          categoryList: newArr,
-        },
+        toDoList: [
+          ...allToDoList.slice(0, userDateFindIndex),
+          {
+            createdDate: userDate,
+            categoryList: newArr,
+          },
+          ...allToDoList.slice(userDateFindIndex + 1),
+        ],
       });
     }
   };
@@ -178,18 +188,21 @@ export default function ToDo({
 
     await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
       user: userObj.uid,
-      createdDate: userDate,
-      toDoList: {
-        createdDate: userDate,
-        categoryList: newArr,
-      },
+      toDoList: [
+        ...allToDoList.slice(0, userDateFindIndex),
+        {
+          createdDate: userDate,
+          categoryList: newArr,
+        },
+        ...allToDoList.slice(userDateFindIndex + 1),
+      ],
     });
   };
 
   return (
     <ListItem key={id}>
       <ItemText>{text}</ItemText>
-      {userDate === todayDate && (
+      {+userDate >= +todayDate && (
         <IconWrapper>
           <Icon onClick={onDeleteClick}>
             <Img src={TRASH} alt="delete" />

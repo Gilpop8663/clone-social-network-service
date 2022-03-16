@@ -547,11 +547,13 @@ export default function ToDos({ userObj }: any) {
           ...item.data(),
         };
       });
-      console.log(toDosArr[0].toDoList);
-      const isUserDate = toDosArr[0]?.toDoList?.filter(
-        (item: any) => item.createdDate === userDate
-      );
-      if (isUserDate?.length === 0 || toDosArr?.length === 0) {
+
+      if (
+        toDosArr[0].toDoList.filter(
+          (item: any) => item.createdDate === userDate
+        ).length === 0 ||
+        toDosArr?.length === 0
+      ) {
         return allNewCategory();
       }
       if (toDosArr.length > 0) {
@@ -857,7 +859,7 @@ export default function ToDos({ userObj }: any) {
                 )}
               </ListTitleWrapper>
             ))}
-            {userDate === todayDate && toDoList[0]?.categoryList?.length < 5 && (
+            {+userDate >= +todayDate && toDoList[0]?.categoryList?.length < 5 && (
               <CreateList onClick={onCreateCategory}>
                 <Img src={PLUS} />
               </CreateList>
@@ -901,11 +903,11 @@ export default function ToDos({ userObj }: any) {
             onKeyPress={(e) => onEnterPress(e, onSubmit)}
           >
             <TodayInput
-              // disabled={
-              //   toDoList[0]?.categoryList?.filter(
-              //     (item: any) => item.id === category
-              //   )[0]?.list.length > 7 || userDate !== todayDate
-              // }
+              disabled={
+                toDoList[0]?.categoryList?.filter(
+                  (item: any) => item.id === category
+                )[0]?.list.length > 7 || +userDate < +todayDate
+              }
               type="text"
               maxLength={15}
               onChange={onChange}
@@ -915,8 +917,8 @@ export default function ToDos({ userObj }: any) {
                   (item: any) => item.id === category
                 )[0]?.list.length > 7
                   ? '최대 8개까지 적을 수 있습니다'
-                  : userDate !== todayDate
-                  ? '오늘만 추가할 수 있습니다'
+                  : +userDate < +todayDate
+                  ? '과거의 목록은 추가할 수 없습니다'
                   : PLACEHOLDER
               }
             />
