@@ -590,6 +590,8 @@ export default function ToDos({ userObj }: any) {
     (item: any) => item.createdDate === userDate
   );
   useEffect(() => {
+    console.log(toDoList);
+
     const q = query(
       collection(dbService, TO_DO_LIST),
       where('user', '==', `${userObj.uid}`)
@@ -600,7 +602,9 @@ export default function ToDos({ userObj }: any) {
           ...item.data(),
         };
       });
-      console.log(category);
+      if (toDosArr?.length === 0) {
+        return allNewCategory();
+      }
       if (
         toDosArr[0].toDoList.filter(
           (item: any) => item.createdDate === userDate
@@ -609,6 +613,7 @@ export default function ToDos({ userObj }: any) {
       ) {
         return allNewCategory();
       }
+
       if (
         toDosArr[0]?.toDoList.filter(
           (item: any) => item.createdDate === userDate
