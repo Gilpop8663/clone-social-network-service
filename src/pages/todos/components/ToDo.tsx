@@ -13,7 +13,7 @@ interface IToDoProps {
   isFinish: boolean;
   userObj: any;
   createdDate: string;
-  categoryId: string;
+  categoryId: string | null;
   todayDate: string;
   categoryList: ICategory[];
   userDate: string;
@@ -37,6 +37,8 @@ const ItemText = styled.span`
   font-family: 'Roboto';
   font-style: normal;
   font-weight: 400;
+  height: 100%;
+  width: 75%;
   font-size: 15px;
   line-height: 18px;
   display: flex;

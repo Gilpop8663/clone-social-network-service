@@ -44,8 +44,20 @@ const GridContainer = styled.div`
   height: 97vh;
   display: grid;
   gap: 25px;
+  place-content: flex-start center;
   grid-template-columns: 1.2fr 1fr 1.2fr;
   grid-template-rows: 1fr 2fr;
+  @media only screen and (max-width: 1450px) {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(3, 1fr);
+  }
+  @media only screen and (max-width: 768px) {
+    width: 350px;
+    padding: 50px 0px;
+    place-content: flex-start center;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(6, 1fr);
+  }
 `;
 
 const Calendar = styled.div`
@@ -53,6 +65,10 @@ const Calendar = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
+  max-height: 500px;
+  @media only screen and (max-width: 1450px) {
+    order: 0;
+  }
 `;
 
 const MonthList = styled.div`
@@ -111,6 +127,9 @@ const Month = styled.div`
   }
   &:nth-child(12) {
     background: #b77874;
+  }
+  @media only screen and (max-width: 768px) {
+    font-size: 16px;
   }
 `;
 
@@ -202,6 +221,10 @@ const ToDoTitle = styled.h1`
   display: flex;
   justify-content: center;
   align-items: flex-end;
+  @media only screen and (max-width: 1450px) {
+    display: none;
+    visibility: none;
+  }
 `;
 
 const Achievement = styled.div`
@@ -212,6 +235,10 @@ const Achievement = styled.div`
   align-items: center;
   background: #ffd9a0;
   border-radius: 10px;
+  @media only screen and (max-width: 1450px) {
+    display: none;
+    visibility: none;
+  }
 `;
 
 const AchievementText = styled.h2`
@@ -247,6 +274,9 @@ const ListDoToday = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
+  @media only screen and (max-width: 1450px) {
+    order: 2;
+  }
 `;
 
 const ListTitleGrid = styled.div`
@@ -293,6 +323,9 @@ const ListTitle = styled.h2`
   /* identical to box height */
 
   letter-spacing: -0.045em;
+  @media only screen and (max-width: 768px) {
+    font-size: 24px;
+  }
 `;
 
 const CreateList = styled.div`
@@ -329,6 +362,10 @@ const WhatDoToday = styled.div`
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+  @media only screen and (max-width: 1450px) {
+    order: 1;
+    justify-content: center;
+  }
 `;
 const TodayForm = styled.form`
   width: 100%;
@@ -370,6 +407,9 @@ const TodayInput = styled.input`
   &:focus:-moz-placeholder {
     color: transparent;
   }
+  @media only screen and (max-width: 768px) {
+    width: 350px;
+  }
 `;
 
 const ListCompletedToday = styled(ListDoToday)`
@@ -377,12 +417,19 @@ const ListCompletedToday = styled(ListDoToday)`
   display: flex;
   flex-direction: column;
   position: relative;
+  @media only screen and (max-width: 1450px) {
+    order: 3;
+  }
 `;
 
 const Footer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  @media only screen and (max-width: 1450px) {
+    display: none;
+    visibility: none;
+  }
 `;
 
 const FooterInfo = styled.div`
@@ -455,6 +502,10 @@ const HomeLink = styled.div`
   a {
     color: black;
   }
+  @media only screen and (max-width: 1450px) {
+    display: none;
+    visibility: none;
+  }
 `;
 
 interface IEdit {
@@ -515,15 +566,17 @@ export default function ToDos({ userObj }: any) {
   } = useForm<IEdit>();
   const [toDos, setToDos] = useState('');
   const [toDoList, setToDoList] = useState<any>([]);
-  const [category, setCategory] = useState('To Do List');
+  const [category, setCategory] = useState<string | null>(null);
   const [isEditCategory, setIsEditCategory] = useState(false);
   const [userMonth, setUserMonth] = useState(
     new Date(Date.now()).getMonth() + 1
   );
   const [userYear, setUserYear] = useState(new Date(Date.now()).getFullYear());
   const [dateList, setDateList] = useState<number[]>([]);
-  const todayDate = `${userYear}${
-    userMonth < 10 ? `0${userMonth}` : userMonth
+  const todayDate = `${new Date(Date.now()).getFullYear()}${
+    new Date(Date.now()).getMonth() + 1 < 10
+      ? `0${new Date(Date.now()).getMonth() + 1}`
+      : new Date(Date.now()).getMonth() + 1
   }${
     new Date(Date.now()).getDate() < 10
       ? `0${new Date(Date.now()).getDate()}`
@@ -531,11 +584,11 @@ export default function ToDos({ userObj }: any) {
   }`;
   const [userDate, setUserDate] = useState(todayDate);
   const [allToDoList, setAllToDoList] = useState<any>([]);
-
+  const [refetch, setRefetch] = useState(false);
+  const [lastCategory, setLastCategory] = useState<string | null>(null);
   const userDateFindIndex: number = allToDoList.findIndex(
     (item: any) => item.createdDate === userDate
   );
-  console.log(userDateFindIndex);
   useEffect(() => {
     const q = query(
       collection(dbService, TO_DO_LIST),
@@ -556,6 +609,13 @@ export default function ToDos({ userObj }: any) {
       ) {
         return allNewCategory();
       }
+      if (
+        toDosArr[0]?.toDoList.filter(
+          (item: any) => item.createdDate === userDate
+        )[0]?.categoryList[0]?.id === undefined
+      )
+        return;
+
       if (toDosArr.length > 0) {
         setAllToDoList([...toDosArr[0].toDoList]);
         setToDoList(
@@ -564,24 +624,17 @@ export default function ToDos({ userObj }: any) {
           )
         );
       }
-      if (category === 'To Do List' || category === undefined) {
-        setCategory(
-          toDosArr[0]?.toDoList?.filter(
-            (item: any) => item.createdDate === userDate
-          )[0].categoryList[0].id
-        );
-      }
     });
-  }, [userObj.uid, userDate]);
+  }, [userDate]);
 
   const PLACEHOLDER = "\nToday's to-do.";
-  console.log(category);
 
   const onListChangeClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const {
       currentTarget: { id },
     } = e;
     setCategory(id);
+    setLastCategory(id);
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -593,7 +646,6 @@ export default function ToDos({ userObj }: any) {
       (item: any) => item.id === category
     );
     if (findIndex === -1) return;
-
     const newArr = [
       ...toDoCategory.slice(0, findIndex),
       {
@@ -713,8 +765,14 @@ export default function ToDos({ userObj }: any) {
 
   useEffect(() => {
     getCalenderMonth(userMonth);
-  }, []);
-
+    setCategory(() => {
+      if (category === null && category !== undefined) {
+        return toDoList[0]?.categoryList[0]?.id;
+      } else {
+        return lastCategory;
+      }
+    });
+  }, [refetch, toDoList]);
   if (userDateFindIndex === -1) return null;
 
   const onEditSubmit = handleSubmit(async (data) => {
@@ -752,6 +810,7 @@ export default function ToDos({ userObj }: any) {
     } = e;
     if (!innerText) return;
     setUserMonth(+innerText);
+    setCategory(null);
     getCalenderMonth(+innerText);
   };
 
@@ -763,7 +822,8 @@ export default function ToDos({ userObj }: any) {
     const date = `${userYear}${userMonth < 10 ? `0${userMonth}` : userMonth}${
       +innerText < 10 ? `0${innerText}` : innerText
     }`;
-    setCategory('To Do List');
+    setRefetch((prev) => !prev);
+    setCategory(null);
     setUserDate(date);
   };
 
@@ -909,7 +969,7 @@ export default function ToDos({ userObj }: any) {
                 )[0]?.list.length > 7 || +userDate < +todayDate
               }
               type="text"
-              maxLength={15}
+              maxLength={80}
               onChange={onChange}
               value={toDos}
               placeholder={
