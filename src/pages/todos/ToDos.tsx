@@ -685,7 +685,6 @@ export default function ToDos({ userObj }: any) {
     });
     setToDos('');
   };
-
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
       target: { value },
@@ -765,13 +764,15 @@ export default function ToDos({ userObj }: any) {
 
   useEffect(() => {
     getCalenderMonth(userMonth);
-    setCategory(() => {
-      if (category === null && category !== undefined) {
-        return toDoList[0]?.categoryList[0]?.id;
-      } else {
-        return lastCategory;
-      }
-    });
+    setTimeout(() => {
+      setCategory(() => {
+        if (category === null && category !== undefined) {
+          return toDoList[0]?.categoryList[0]?.id;
+        } else {
+          return lastCategory;
+        }
+      });
+    }, 300);
   }, [refetch, toDoList]);
   if (userDateFindIndex === -1) return null;
 
