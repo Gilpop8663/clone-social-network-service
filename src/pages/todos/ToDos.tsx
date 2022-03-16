@@ -600,7 +600,7 @@ export default function ToDos({ userObj }: any) {
           ...item.data(),
         };
       });
-
+      console.log(category);
       if (
         toDosArr[0].toDoList.filter(
           (item: any) => item.createdDate === userDate
@@ -671,7 +671,7 @@ export default function ToDos({ userObj }: any) {
     //   },
     //   ...allToDoList.slice(userDateFindIndex + 1),
     // ];
-
+    setLastCategory(category);
     await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
       user: userObj.uid,
       toDoList: [
@@ -774,6 +774,7 @@ export default function ToDos({ userObj }: any) {
       });
     }, 300);
   }, [refetch, toDoList]);
+  console.log(category);
   if (userDateFindIndex === -1) return null;
 
   const onEditSubmit = handleSubmit(async (data) => {
@@ -941,6 +942,7 @@ export default function ToDos({ userObj }: any) {
                 userDate={userDate}
                 allToDoList={allToDoList}
                 userDateFindIndex={userDateFindIndex}
+                setLastCategory={setLastCategory}
               />
             ))}
           </DoList>
@@ -1037,6 +1039,7 @@ export default function ToDos({ userObj }: any) {
                 userDate={userDate}
                 allToDoList={allToDoList}
                 userDateFindIndex={userDateFindIndex}
+                setLastCategory={setLastCategory}
               />
             ))}
           </DoList>

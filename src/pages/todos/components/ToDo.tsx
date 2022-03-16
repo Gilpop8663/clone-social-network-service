@@ -19,6 +19,7 @@ interface IToDoProps {
   userDate: string;
   allToDoList: any;
   userDateFindIndex: number;
+  setLastCategory: any;
 }
 
 const ListItem = styled.div`
@@ -89,6 +90,7 @@ export default function ToDo({
   userDate,
   allToDoList,
   userDateFindIndex,
+  setLastCategory,
 }: IToDoProps) {
   const [isEdit, setIsEdit] = useState(false);
   const [editMessage, setEditMessage] = useState(text);
@@ -137,6 +139,7 @@ export default function ToDo({
         ...allToDoList.slice(userDateFindIndex + 1),
       ],
     });
+    setLastCategory(categoryId);
     setIsEdit(false);
   };
 
@@ -157,6 +160,7 @@ export default function ToDo({
     ];
     const ok = window.confirm('정말 삭제하시겠습니까?');
     if (ok) {
+      setLastCategory(categoryId);
       await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
         user: userObj.uid,
         toDoList: [
@@ -177,16 +181,18 @@ export default function ToDo({
       {
         ...categoryList[findIndex],
         list: [
-          ...categoryList[findIndex].list.slice(0, commentIndex),
+          ...categoryList[findIndex]?.list?.slice(0, commentIndex),
           {
             ...categoryList[findIndex].list[commentIndex],
             isFinish: !categoryList[findIndex].list[commentIndex].isFinish,
           },
-          ...categoryList[findIndex].list.slice(commentIndex + 1),
+          ...categoryList[findIndex]?.list?.slice(commentIndex + 1),
         ],
       },
       ...categoryList.slice(findIndex + 1),
     ];
+
+    setLastCategory(categoryId);
 
     await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
       user: userObj.uid,
