@@ -20,6 +20,7 @@ import {
   GUEST_NAME,
   HOME_URL,
   TODO,
+  TO_DO_LIST,
 } from 'constants/constant';
 import { onEnterPress } from 'utils/utilFn';
 import { EDIT, FLAG, PLUS, TO_DO_LEE, TRASH } from 'assets';
@@ -355,11 +356,19 @@ const TodayInput = styled.input`
   text-align: center;
   border: none;
   resize: none;
+  outline: none;
   &::placeholder {
     display: flex;
+    text-align: center;
     height: 75px;
 
     align-items: center;
+  }
+  &:focus::-webkit-input-placeholder {
+    color: transparent;
+  }
+  &:focus:-moz-placeholder {
+    color: transparent;
   }
 `;
 
@@ -399,7 +408,7 @@ const MyLink = styled.a`
 
 const FooterText = styled.h6``;
 
-const FooterbyDesigner = styled.h6`
+const FooterbyDesigner = styled.a`
   font-family: 'Handlee';
   font-style: normal;
   font-weight: 400;
@@ -408,6 +417,7 @@ const FooterbyDesigner = styled.h6`
   display: flex;
   align-items: center;
   text-align: center;
+  text-decoration: none;
 
   color: #000000;
 `;
@@ -429,6 +439,8 @@ const EditInput = styled.input`
   width: 80px;
   height: 20px;
   background-color: inherit;
+  outline: none;
+  border: none;
 `;
 
 const Icon = styled.div`
@@ -503,11 +515,7 @@ export default function ToDos({ userObj }: any) {
   } = useForm<IEdit>();
   const [toDos, setToDos] = useState('');
   const [toDoList, setToDoList] = useState<any>([]);
-  const [category, setCategory] = useState(
-    toDoList[0]?.categoryList[0]?.id
-      ? toDoList[0]?.categoryList[0]?.id
-      : 'To Do List'
-  );
+  const [category, setCategory] = useState('To Do List');
   const [isEditCategory, setIsEditCategory] = useState(false);
   const [userMonth, setUserMonth] = useState(
     new Date(Date.now()).getMonth() + 1
@@ -522,11 +530,15 @@ export default function ToDos({ userObj }: any) {
       : new Date(Date.now()).getDate()
   }`;
   const [userDate, setUserDate] = useState(todayDate);
-  const [refetch, setRefetch] = useState(false);
+  const [allToDoList, setAllToDoList] = useState<any>([]);
 
+  const userDateFindIndex: number = allToDoList.findIndex(
+    (item: any) => item.createdDate === userDate
+  );
+  console.log(userDateFindIndex);
   useEffect(() => {
     const q = query(
-      collection(dbService, `test`),
+      collection(dbService, TO_DO_LIST),
       where('user', '==', `${userObj.uid}`)
     );
     onSnapshot(q, async (snapshot) => {
@@ -535,20 +547,35 @@ export default function ToDos({ userObj }: any) {
           ...item.data(),
         };
       });
-      setToDoList(
+
+      if (
         toDosArr[0].toDoList.filter(
           (item: any) => item.createdDate === userDate
-        )
-      );
+        ).length === 0 ||
+        toDosArr?.length === 0
+      ) {
+        return allNewCategory();
+      }
+      if (toDosArr.length > 0) {
+        setAllToDoList([...toDosArr[0].toDoList]);
+        setToDoList(
+          toDosArr[0]?.toDoList?.filter(
+            (item: any) => item.createdDate === userDate
+          )
+        );
+      }
+      if (category === 'To Do List' || category === undefined) {
+        setCategory(
+          toDosArr[0]?.toDoList?.filter(
+            (item: any) => item.createdDate === userDate
+          )[0].categoryList[0].id
+        );
+      }
     });
-    if (refetch === false) {
-      setTimeout(() => {
-        setRefetch(true);
-      }, 450);
-    }
   }, [userObj.uid, userDate]);
 
   const PLACEHOLDER = "\nToday's to-do.";
+  console.log(category);
 
   const onListChangeClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const {
@@ -584,14 +611,24 @@ export default function ToDos({ userObj }: any) {
       },
       ...toDoCategory.slice(findIndex + 1),
     ];
+    // const toDoListNewArr = [
+    //   ...allToDoList.slice(0, userDateFindIndex),
+    //   {
+    //     createdDate: userDate,
+    //     categoryList: newArr,
+    //   },
+    //   ...allToDoList.slice(userDateFindIndex + 1),
+    // ];
 
-    await setDoc(doc(dbService, 'test', `${userObj.uid}`), {
+    await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
       user: userObj.uid,
       toDoList: [
+        ...allToDoList.slice(0, userDateFindIndex),
         {
-          createdDate: todayDate,
+          createdDate: userDate,
           categoryList: newArr,
         },
+        ...allToDoList.slice(userDateFindIndex + 1),
       ],
     });
     setToDos('');
@@ -610,73 +647,51 @@ export default function ToDos({ userObj }: any) {
   };
 
   const onCreateCategory = async () => {
-    if (userDate !== todayDate) return;
+    // if (userDate !== todayDate) return;
     const newCategory = [
       ...toDoList[0].categoryList,
       { id: uuidv4(), title: 'To Do List', list: [] },
     ];
 
-    await setDoc(doc(dbService, 'test', `${userObj.uid}`), {
+    await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
       user: userObj.uid,
       toDoList: [
+        ...allToDoList.slice(0, userDateFindIndex),
         {
-          createdDate: todayDate,
+          createdDate: userDate,
           categoryList: newCategory,
         },
+        ...allToDoList.slice(userDateFindIndex + 1),
       ],
     });
   };
 
   const allNewCategory = async () => {
-    if (userDate !== todayDate) return;
+    // if (userDate !== todayDate) return;
     const newCategory = [{ id: uuidv4(), title: 'To Do List', list: [] }];
 
-    await setDoc(doc(dbService, 'test', `${userObj.uid}`), {
-      user: userObj.uid,
-      toDoList: [
-        {
-          createdDate: todayDate,
-          categoryList: newCategory,
-        },
-      ],
-    });
-  };
-
-  const onEditSubmit = handleSubmit(async (data) => {
-    const toDoCategory = toDoList[0].categoryList;
-    const findIndex = toDoCategory.findIndex(
-      (item: any) => item.id === category
-    );
-    const newArr = [
-      ...toDoCategory.slice(0, findIndex),
-      {
-        id: category,
-        title: data.edit,
-        list: toDoCategory[findIndex].list,
-      },
-      ...toDoCategory.slice(findIndex + 1),
-    ];
-    await setDoc(doc(dbService, 'test', `${userObj.uid}`), {
-      user: userObj.uid,
-      toDoList: [
-        {
-          createdDate: todayDate,
-          categoryList: newArr,
-        },
-      ],
-    });
-
-    setIsEditCategory(false);
-  });
-
-  const onClickMonth = (e: React.MouseEvent<HTMLDivElement>) => {
-    const {
-      currentTarget: { innerText },
-    } = e;
-    if (!innerText) return;
-    setUserMonth(+innerText);
-    setUserDate('');
-    getCalenderMonth(+innerText);
+    if (allToDoList.length > 0) {
+      await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
+        user: userObj.uid,
+        toDoList: [
+          ...allToDoList,
+          {
+            createdDate: userDate,
+            categoryList: newCategory,
+          },
+        ],
+      });
+    } else {
+      await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
+        user: userObj.uid,
+        toDoList: [
+          {
+            createdDate: userDate,
+            categoryList: newCategory,
+          },
+        ],
+      });
+    }
   };
 
   const getCalenderMonth = (month: number) => {
@@ -696,6 +711,50 @@ export default function ToDos({ userObj }: any) {
     return callenderArr;
   };
 
+  useEffect(() => {
+    getCalenderMonth(userMonth);
+  }, []);
+
+  if (userDateFindIndex === -1) return null;
+
+  const onEditSubmit = handleSubmit(async (data) => {
+    const toDoCategory = toDoList[0].categoryList;
+    const findIndex = toDoCategory.findIndex(
+      (item: any) => item.id === category
+    );
+    const newArr = [
+      ...toDoCategory.slice(0, findIndex),
+      {
+        id: category,
+        title: data.edit,
+        list: toDoCategory[findIndex].list,
+      },
+      ...toDoCategory.slice(findIndex + 1),
+    ];
+    await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
+      user: userObj.uid,
+      toDoList: [
+        ...allToDoList.slice(0, userDateFindIndex),
+        {
+          createdDate: userDate,
+          categoryList: newArr,
+        },
+        ...allToDoList.slice(userDateFindIndex + 1),
+      ],
+    });
+
+    setIsEditCategory(false);
+  });
+
+  const onClickMonth = (e: React.MouseEvent<HTMLDivElement>) => {
+    const {
+      currentTarget: { innerText },
+    } = e;
+    if (!innerText) return;
+    setUserMonth(+innerText);
+    getCalenderMonth(+innerText);
+  };
+
   const getClickDate = (e: React.MouseEvent<HTMLDivElement>) => {
     const {
       currentTarget: { innerText },
@@ -704,20 +763,9 @@ export default function ToDos({ userObj }: any) {
     const date = `${userYear}${userMonth < 10 ? `0${userMonth}` : userMonth}${
       +innerText < 10 ? `0${innerText}` : innerText
     }`;
+    setCategory('To Do List');
     setUserDate(date);
   };
-
-  useEffect(() => {
-    getCalenderMonth(userMonth);
-    if (category === 'To Do List' || category === undefined) {
-      setCategory(toDoList[0]?.categoryList[0]?.id);
-    }
-    if (toDoList.length === 0 && refetch) {
-      allNewCategory();
-    }
-  }, [refetch]);
-
-  console.log(category);
 
   if (!toDoList) return null;
 
@@ -811,7 +859,7 @@ export default function ToDos({ userObj }: any) {
                 )}
               </ListTitleWrapper>
             ))}
-            {userDate === todayDate && toDoList[0]?.categoryList?.length < 5 && (
+            {+userDate >= +todayDate && toDoList[0]?.categoryList?.length < 5 && (
               <CreateList onClick={onCreateCategory}>
                 <Img src={PLUS} />
               </CreateList>
@@ -830,6 +878,8 @@ export default function ToDos({ userObj }: any) {
                 categoryList={toDoList[0].categoryList}
                 todayDate={todayDate}
                 userDate={userDate}
+                allToDoList={allToDoList}
+                userDateFindIndex={userDateFindIndex}
               />
             ))}
           </DoList>
@@ -856,7 +906,7 @@ export default function ToDos({ userObj }: any) {
               disabled={
                 toDoList[0]?.categoryList?.filter(
                   (item: any) => item.id === category
-                )[0]?.list.length > 7 || userDate !== todayDate
+                )[0]?.list.length > 7 || +userDate < +todayDate
               }
               type="text"
               maxLength={15}
@@ -867,8 +917,8 @@ export default function ToDos({ userObj }: any) {
                   (item: any) => item.id === category
                 )[0]?.list.length > 7
                   ? '최대 8개까지 적을 수 있습니다'
-                  : userDate !== todayDate
-                  ? '오늘만 추가할 수 있습니다'
+                  : +userDate < +todayDate
+                  ? '과거의 목록은 추가할 수 없습니다'
                   : PLACEHOLDER
               }
             />
@@ -893,18 +943,19 @@ export default function ToDos({ userObj }: any) {
               </MyLink>
               <FooterText>{new Date(Date.now()).getFullYear()}</FooterText>
             </FooterInfo>
-            <FooterbyDesigner>design by dayaya</FooterbyDesigner>
+            <FooterbyDesigner
+              href="https://www.behance.net/tv-1"
+              target="_blank"
+            >
+              design by dayaya
+            </FooterbyDesigner>
           </Footer>
         </WhatDoToday>
         <ListCompletedToday>
           <ListTitleGrid>
             {toDoList[0]?.categoryList.map((item: any) => (
               <ListTitleWrapper key={item.id}>
-                <ListTitle
-                  id={item.id}
-                  onClick={onListChangeClick}
-                  onDoubleClick={() => onEditCategoryClick(item.id)}
-                >
+                <ListTitle id={item.id} onClick={onListChangeClick}>
                   {item.title}
                 </ListTitle>
               </ListTitleWrapper>
@@ -923,6 +974,8 @@ export default function ToDos({ userObj }: any) {
                 categoryList={toDoList[0].categoryList}
                 todayDate={todayDate}
                 userDate={userDate}
+                allToDoList={allToDoList}
+                userDateFindIndex={userDateFindIndex}
               />
             ))}
           </DoList>

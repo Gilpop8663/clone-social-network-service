@@ -1,5 +1,5 @@
 import { EDIT, FLAG, TRASH } from 'assets';
-import { TODO } from 'constants/constant';
+import { TODO, TO_DO_LIST } from 'constants/constant';
 import { deleteDoc, doc, setDoc, updateDoc, where } from 'firebase/firestore';
 import { useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -17,6 +17,8 @@ interface IToDoProps {
   todayDate: string;
   categoryList: ICategory[];
   userDate: string;
+  allToDoList: any;
+  userDateFindIndex: number;
 }
 
 const ListItem = styled.div`
@@ -83,6 +85,8 @@ export default function ToDo({
   categoryList,
   todayDate,
   userDate,
+  allToDoList,
+  userDateFindIndex,
 }: IToDoProps) {
   const [isEdit, setIsEdit] = useState(false);
   const [editMessage, setEditMessage] = useState(text);
@@ -120,13 +124,15 @@ export default function ToDo({
       ...categoryList.slice(findIndex + 1),
     ];
 
-    await setDoc(doc(dbService, 'test', `${userObj.uid}`), {
+    await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
       user: userObj.uid,
       toDoList: [
+        ...allToDoList.slice(0, userDateFindIndex),
         {
-          createdDate: todayDate,
+          createdDate: userDate,
           categoryList: newArr,
         },
+        ...allToDoList.slice(userDateFindIndex + 1),
       ],
     });
     setIsEdit(false);
@@ -149,13 +155,15 @@ export default function ToDo({
     ];
     const ok = window.confirm('정말 삭제하시겠습니까?');
     if (ok) {
-      await setDoc(doc(dbService, 'test', `${userObj.uid}`), {
+      await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
         user: userObj.uid,
         toDoList: [
+          ...allToDoList.slice(0, userDateFindIndex),
           {
-            createdDate: todayDate,
+            createdDate: userDate,
             categoryList: newArr,
           },
+          ...allToDoList.slice(userDateFindIndex + 1),
         ],
       });
     }
@@ -178,13 +186,15 @@ export default function ToDo({
       ...categoryList.slice(findIndex + 1),
     ];
 
-    await setDoc(doc(dbService, 'test', `${userObj.uid}`), {
+    await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
       user: userObj.uid,
       toDoList: [
+        ...allToDoList.slice(0, userDateFindIndex),
         {
-          createdDate: todayDate,
+          createdDate: userDate,
           categoryList: newArr,
         },
+        ...allToDoList.slice(userDateFindIndex + 1),
       ],
     });
   };
@@ -192,7 +202,7 @@ export default function ToDo({
   return (
     <ListItem key={id}>
       <ItemText>{text}</ItemText>
-      {userDate === todayDate && (
+      {+userDate >= +todayDate && (
         <IconWrapper>
           <Icon onClick={onDeleteClick}>
             <Img src={TRASH} alt="delete" />
