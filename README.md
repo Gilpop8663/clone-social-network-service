@@ -4,53 +4,8 @@
 
 ## 💻 설치 방법
 
-    npm install
-    npm start
-
-## 📂 파일 구조
-
-src  
- ┣ assets  
- ┃ ┗ images  
- ┣ components  
- ┃ ┣ Footer.tsx  
- ┃ ┣ MiniLogo.tsx  
- ┃ ┗ Navigation.tsx  
- ┣ constants  
- ┃ ┗ constant.ts  
- ┣ hooks  
- ┣ pages  
- ┃ ┣ auth  
- ┃ ┃ ┣ components  
- ┃ ┃ ┃ ┣ AuthForm.tsx  
- ┃ ┃ ┃ ┗ AuthSocialLogin.tsx  
- ┃ ┃ ┗ Auth.tsx  
- ┃ ┣ home  
- ┃ ┃ ┣ components  
- ┃ ┃ ┃ ┣ Message.tsx  
- ┃ ┃ ┃ ┗ MessageForm.tsx  
- ┃ ┃ ┗ Home.tsx  
- ┃ ┣ todos  
- ┃ ┃ ┣ components  
- ┃ ┃ ┃ ┗ ToDo.tsx  
- ┃ ┃ ┗ ToDos.tsx  
- ┃ ┣ Profile.tsx  
- ┃ ┗ index.ts  
- ┣ router  
- ┃ ┗ AppRouter.tsx  
- ┣ styles  
- ┃ ┣ globalStyle.ts  
- ┃ ┣ index.ts  
- ┃ ┣ styled.d.ts  
- ┃ ┗ theme.ts  
- ┣ utils  
- ┃ ┣ interface.ts  
- ┃ ┗ utilFn.ts  
- ┣ App.tsx  
- ┣ firebase.ts  
- ┗ index.tsx
-
----
+    yarn/npm install
+    yarn/npm start
 
 ## 📋프로젝트 사진
 
@@ -73,9 +28,15 @@ src
 
 ---
 
-## 투 두 리스트 화면
+## 투 두 리스트 화면(22년 3월 15일 업데이트)
+
+### 변경 전
 
 <img src="https://user-images.githubusercontent.com/80146176/155887586-f2f64d11-d39f-4350-9b96-e2b1a6c7cdc4.png" alt="투두리스트 창"/>
+
+### 변경 후
+
+<img src="https://user-images.githubusercontent.com/80146176/159179090-f89e8923-70ac-433c-814e-0bc84cf198df.png" alt="new ToDoLee"/>
 
 ---
 
@@ -97,7 +58,32 @@ src
 
 ### 투두리스트 기능
 
+#### Firebase를 이용한 백앤드 구현
+
 - firebase의 필터 기능을 이용하여 작성자 자신이 작성한 글만 보여지게 하여 투두리스트 기능을 만들었습니다.
+- firebase의 setDoc을 사용하였고 스프레드 문법으로 기존의 데이터와 수정된 데이터를 객체로 만들어 서버 데이터에 보냈습니다.
+
+#### 라이브러리 없이 만든 달력 데이터
+
+- 달력을 만들어 월에 해당하는 시작하는 요일과 일 수에 맞춰 데이터가 생성됩니다.
+- 날짜를 눌렀을 때 해당되는 날짜로 이동하며 해당되는 데이터를 불러와 표시합니다.
+
+#### 해당 되는 날짜의 투두리스트 완료율 제공
+
+- 유저가 누른 날짜에 해당되는 완료한 투두리스트/생성된 투두리스트 % 값으로 완료율을 유저에게 표시합니다.
+
+#### 카테고리 및 투두리스트 기능 설명
+
+- 카테고리를 추가할 수 있으며 클릭으로 카테고리 변경, 더블클릭으로 카테고리 이름 수정 기능을 이용할 수 있습니다.
+- 유저는 생성된 투두리스트 데이터를 완료, 삭제, 수정을 할 수 있습니다.
+- 과거의 날짜에는 생성 및 투두리스트 데이터를 아예 수정할 수 없으며 , 오늘 오전 6시를 기준으로 전 날에 해당하는 투두리스트를 완료 및 삭제 수정 기능을 사용할 수 있습니다.
+
+#### API 설계
+
+<img src="https://user-images.githubusercontent.com/80146176/159180006-8f93fce6-7106-4390-8218-a9e54993d8c4.png" alt="설계"/>
+
+- 투두리스트 데이터 설계 시에 많은 유저와 많은 날짜 그리고 많은 카테고리 및 투두리스트 데이터들을 어떻게 효율적으로 설계해야할 지 고민을 많이 했었습니다.
+- 큰 틀에서는 유저의 이름으로 모든 데이터가 각각 들어가 있고 유저안의 투두리스트 배열에서 각각 날짜에 해당되는 데이터가 있게끔 설계하여 적용중에 있습니다.
 
 ### 반응형 사이트
 
