@@ -382,7 +382,7 @@ const TodayInput = styled.input`
   width: 422px;
   height: 75px;
 
-  font-family: 'Handlee';
+  font-family: 'Handlee', 'Roboto';
   font-style: normal;
   font-weight: 400;
   font-size: 20px;
@@ -590,8 +590,6 @@ export default function ToDos({ userObj }: any) {
     (item: any) => item.createdDate === userDate
   );
   useEffect(() => {
-    console.log(toDoList);
-
     const q = query(
       collection(dbService, TO_DO_LIST),
       where('user', '==', `${userObj.uid}`)
@@ -779,7 +777,6 @@ export default function ToDos({ userObj }: any) {
       });
     }, 300);
   }, [refetch, toDoList]);
-  console.log(category);
   if (userDateFindIndex === -1) return null;
 
   const onEditSubmit = handleSubmit(async (data) => {

@@ -35,7 +35,7 @@ const ListItem = styled.div`
 `;
 
 const ItemText = styled.span`
-  font-family: 'Roboto';
+  font-family: 'Handlee', 'Roboto';
   font-style: normal;
   font-weight: 400;
   height: 100%;
@@ -95,7 +95,12 @@ export default function ToDo({
   const [isEdit, setIsEdit] = useState(false);
   const [editMessage, setEditMessage] = useState(text);
   const editRef = useRef<HTMLInputElement>(null);
-
+  const userDateHour = `${userDate}06`;
+  const todayDateHour = `${todayDate}${
+    new Date(Date.now()).getHours() < 10
+      ? `0${new Date(Date.now()).getHours()}`
+      : new Date(Date.now()).getHours()
+  }`;
   const findIndex = categoryList?.findIndex((item) => item.id === categoryId);
   const commentIndex = categoryList[findIndex]?.list?.findIndex(
     (item) => item.id === id
@@ -210,7 +215,7 @@ export default function ToDo({
   return (
     <ListItem key={id}>
       <ItemText>{text}</ItemText>
-      {+userDate >= +todayDate && (
+      {+todayDateHour - +userDateHour < 100 && (
         <IconWrapper>
           <Icon onClick={onDeleteClick}>
             <Img src={TRASH} alt="delete" />
