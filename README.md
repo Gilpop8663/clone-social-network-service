@@ -2,6 +2,8 @@
 
 ## <a href="https://gilpop8663.github.io/clone-social-network-service/">배포 사이트</a>
 
+## <a href="https://hell-of-company-builder.tistory.com/289">블로그 회고 링크</a>
+
 ## 💻 설치 방법
 
     yarn/npm install
