@@ -49,7 +49,7 @@ const GridContainer = styled.div`
   grid-template-rows: 1fr 2fr;
   @media only screen and (max-width: 1450px) {
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
   }
   @media only screen and (max-width: 768px) {
     width: 350px;
@@ -364,7 +364,7 @@ const WhatDoToday = styled.div`
   align-items: center;
   @media only screen and (max-width: 1450px) {
     order: 1;
-    justify-content: center;
+    justify-content: space-between;
   }
 `;
 const TodayForm = styled.form`
@@ -419,6 +419,9 @@ const ListCompletedToday = styled(ListDoToday)`
   position: relative;
   @media only screen and (max-width: 1450px) {
     order: 3;
+  }
+  @media only screen and (max-width: 768px) {
+    padding-bottom: 200px;
   }
 `;
 
@@ -505,6 +508,12 @@ const HomeLink = styled.div`
   @media only screen and (max-width: 1450px) {
     display: none;
     visibility: none;
+  }
+`;
+
+const MobileToDoLee = styled.div`
+  @media only screen and (min-width: 1450px) {
+    display: none;
   }
 `;
 
@@ -632,12 +641,10 @@ export default function ToDos({ userObj }: any) {
 
   const PLACEHOLDER = "\nToday's to-do.";
 
-  const onListChangeClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const {
-      currentTarget: { id },
-    } = e;
+  const onListChangeClick = (id: string) => {
     setCategory(id);
     setLastCategory(id);
+    setIsEditCategory(false);
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -908,14 +915,12 @@ export default function ToDos({ userObj }: any) {
         <ListDoToday>
           <ListTitleGrid>
             {toDoList[0]?.categoryList.map((item: any) => (
-              <ListTitleWrapper key={item.id}>
-                <ListTitle
-                  id={item.id}
-                  onClick={onListChangeClick}
-                  onDoubleClick={() => onEditCategoryClick(item.id)}
-                >
-                  {item.title}
-                </ListTitle>
+              <ListTitleWrapper
+                key={item.id}
+                onClick={() => onListChangeClick(item.id)}
+                onDoubleClick={() => onEditCategoryClick(item.id)}
+              >
+                <ListTitle id={item.id}>{item.title}</ListTitle>
                 {isEditCategory && category === item.id && (
                   <EditForm onSubmit={onEditSubmit}>
                     <EditInput {...register('edit')} type="text" />
@@ -963,6 +968,9 @@ export default function ToDos({ userObj }: any) {
           />
         </ListDoToday>
         <WhatDoToday>
+          <MobileToDoLee>
+            <Img src={TO_DO_LEE} alt="todoList_title" />
+          </MobileToDoLee>
           <TodayForm
             onSubmit={onSubmit}
             onKeyPress={(e) => onEnterPress(e, onSubmit)}
@@ -1019,10 +1027,11 @@ export default function ToDos({ userObj }: any) {
         <ListCompletedToday>
           <ListTitleGrid>
             {toDoList[0]?.categoryList.map((item: any) => (
-              <ListTitleWrapper key={item.id}>
-                <ListTitle id={item.id} onClick={onListChangeClick}>
-                  {item.title}
-                </ListTitle>
+              <ListTitleWrapper
+                key={item.id}
+                onClick={() => onListChangeClick(item.id)}
+              >
+                <ListTitle id={item.id}>{item.title}</ListTitle>
               </ListTitleWrapper>
             ))}
           </ListTitleGrid>
