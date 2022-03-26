@@ -642,9 +642,11 @@ export default function ToDos({ userObj }: any) {
   const PLACEHOLDER = "\nToday's to-do.";
 
   const onListChangeClick = (id: string) => {
+    if (category !== id) {
+      setIsEditCategory(false);
+    }
     setCategory(id);
     setLastCategory(id);
-    setIsEditCategory(false);
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -703,7 +705,7 @@ export default function ToDos({ userObj }: any) {
   };
 
   const onEditCategoryClick = (id: string) => {
-    setIsEditCategory(true);
+    setIsEditCategory((prev) => !prev);
     setCategory(id);
   };
 
