@@ -18,7 +18,6 @@ interface IToDoProps {
   categoryList: ICategory[];
   userDate: string;
   allToDoList: any;
-  userDateFindIndex: number;
   setLastCategory: any;
 }
 
@@ -89,7 +88,6 @@ export default function ToDo({
   todayDate,
   userDate,
   allToDoList,
-  userDateFindIndex,
   setLastCategory,
 }: IToDoProps) {
   const [isEdit, setIsEdit] = useState(false);
@@ -135,14 +133,7 @@ export default function ToDo({
 
     await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
       user: userObj.uid,
-      toDoList: [
-        ...allToDoList.slice(0, userDateFindIndex),
-        {
-          createdDate: userDate,
-          categoryList: newArr,
-        },
-        ...allToDoList.slice(userDateFindIndex + 1),
-      ],
+      toDoList: { ...allToDoList, [userDate]: newArr },
     });
     setLastCategory(categoryId);
     setIsEdit(false);
@@ -168,14 +159,7 @@ export default function ToDo({
       setLastCategory(categoryId);
       await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
         user: userObj.uid,
-        toDoList: [
-          ...allToDoList.slice(0, userDateFindIndex),
-          {
-            createdDate: userDate,
-            categoryList: newArr,
-          },
-          ...allToDoList.slice(userDateFindIndex + 1),
-        ],
+        toDoList: { ...allToDoList, [userDate]: newArr },
       });
     }
   };
@@ -201,14 +185,7 @@ export default function ToDo({
 
     await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
       user: userObj.uid,
-      toDoList: [
-        ...allToDoList.slice(0, userDateFindIndex),
-        {
-          createdDate: userDate,
-          categoryList: newArr,
-        },
-        ...allToDoList.slice(userDateFindIndex + 1),
-      ],
+      toDoList: { ...allToDoList, [userDate]: newArr },
     });
   };
 

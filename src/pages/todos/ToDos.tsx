@@ -592,49 +592,34 @@ export default function ToDos({ userObj }: any) {
       : new Date(Date.now()).getDate()
   }`;
   const [userDate, setUserDate] = useState(todayDate);
+  const [prevUserDate, setPrevUserDate] = useState(todayDate);
   const [allToDoList, setAllToDoList] = useState<any>([]);
   const [refetch, setRefetch] = useState(false);
   const [lastCategory, setLastCategory] = useState<string | null>(null);
-  const userDateFindIndex: number = allToDoList.findIndex(
-    (item: any) => item.createdDate === userDate
-  );
+
   useEffect(() => {
+    if (userDate !== prevUserDate) return;
     const q = query(
       collection(dbService, TO_DO_LIST),
       where('user', '==', `${userObj.uid}`)
     );
     onSnapshot(q, async (snapshot) => {
       const toDosArr = snapshot.docs.map((item: any) => {
-        return {
-          ...item.data(),
-        };
+        return item.data();
       });
-      if (toDosArr?.length === 0) {
-        return allNewCategory();
-      }
+
       if (
-        toDosArr[0].toDoList.filter(
-          (item: any) => item.createdDate === userDate
-        ).length === 0 ||
-        toDosArr?.length === 0
+        toDosArr?.length === 0 ||
+        toDosArr[0]?.toDoList[userDate] === undefined
       ) {
         return allNewCategory();
       }
+      // console.log(toDosArr[0].toDoList[userDate], userDate);
+      if (toDosArr[0].toDoList[userDate][0].id === undefined) return;
 
-      if (
-        toDosArr[0]?.toDoList.filter(
-          (item: any) => item.createdDate === userDate
-        )[0]?.categoryList[0]?.id === undefined
-      )
-        return;
-
-      if (toDosArr.length > 0) {
-        setAllToDoList([...toDosArr[0].toDoList]);
-        setToDoList(
-          toDosArr[0]?.toDoList?.filter(
-            (item: any) => item.createdDate === userDate
-          )
-        );
+      if (toDosArr?.length > 0) {
+        setAllToDoList({ ...toDosArr[0].toDoList });
+        setToDoList(toDosArr[0]?.toDoList[userDate]);
       }
     });
   }, [userDate]);
@@ -653,7 +638,8 @@ export default function ToDos({ userObj }: any) {
     e.preventDefault();
     if (toDos === '') return;
 
-    const toDoCategory = toDoList[0].categoryList;
+    const toDoCategory = toDoList;
+
     const findIndex = toDoCategory.findIndex(
       (item: any) => item.id === category
     );
@@ -675,25 +661,14 @@ export default function ToDos({ userObj }: any) {
       },
       ...toDoCategory.slice(findIndex + 1),
     ];
-    // const toDoListNewArr = [
-    //   ...allToDoList.slice(0, userDateFindIndex),
-    //   {
-    //     createdDate: userDate,
-    //     categoryList: newArr,
-    //   },
-    //   ...allToDoList.slice(userDateFindIndex + 1),
-    // ];
+
     setLastCategory(category);
     await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
       user: userObj.uid,
-      toDoList: [
-        ...allToDoList.slice(0, userDateFindIndex),
-        {
-          createdDate: userDate,
-          categoryList: newArr,
-        },
-        ...allToDoList.slice(userDateFindIndex + 1),
-      ],
+      toDoList: {
+        ...allToDoList,
+        [userDate]: newArr,
+      },
     });
     setToDos('');
   };
@@ -712,47 +687,36 @@ export default function ToDos({ userObj }: any) {
   const onCreateCategory = async () => {
     // if (userDate !== todayDate) return;
     const newCategory = [
-      ...toDoList[0].categoryList,
+      ...toDoList,
       { id: uuidv4(), title: 'To Do List', list: [] },
     ];
 
     await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
       user: userObj.uid,
-      toDoList: [
-        ...allToDoList.slice(0, userDateFindIndex),
-        {
-          createdDate: userDate,
-          categoryList: newCategory,
-        },
-        ...allToDoList.slice(userDateFindIndex + 1),
-      ],
+      toDoList: {
+        ...allToDoList,
+        [userDate]: newCategory,
+      },
     });
   };
-
   const allNewCategory = async () => {
     // if (userDate !== todayDate) return;
     const newCategory = [{ id: uuidv4(), title: 'To Do List', list: [] }];
-
-    if (allToDoList.length > 0) {
+    if (allToDoList) {
       await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
         user: userObj.uid,
-        toDoList: [
+        toDoList: {
           ...allToDoList,
-          {
-            createdDate: userDate,
-            categoryList: newCategory,
-          },
-        ],
+          [userDate]: newCategory,
+        },
       });
     } else {
       await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
         user: userObj.uid,
-        toDoList: [
-          {
-            createdDate: userDate,
-            categoryList: newCategory,
-          },
-        ],
+        toDoList: {
+          ...allToDoList,
+          [userDate]: newCategory,
+        },
       });
     }
   };
@@ -779,17 +743,16 @@ export default function ToDos({ userObj }: any) {
     setTimeout(() => {
       setCategory(() => {
         if (category === null && category !== undefined) {
-          return toDoList[0]?.categoryList[0]?.id;
+          return toDoList[0]?.id;
         } else {
           return lastCategory;
         }
       });
     }, 300);
-  }, [refetch, toDoList]);
-  if (userDateFindIndex === -1) return null;
+  }, [toDoList]);
 
   const onEditSubmit = handleSubmit(async (data) => {
-    const toDoCategory = toDoList[0].categoryList;
+    const toDoCategory = toDoList;
     const findIndex = toDoCategory.findIndex(
       (item: any) => item.id === category
     );
@@ -804,14 +767,10 @@ export default function ToDos({ userObj }: any) {
     ];
     await setDoc(doc(dbService, TO_DO_LIST, `${userObj.uid}`), {
       user: userObj.uid,
-      toDoList: [
-        ...allToDoList.slice(0, userDateFindIndex),
-        {
-          createdDate: userDate,
-          categoryList: newArr,
-        },
-        ...allToDoList.slice(userDateFindIndex + 1),
-      ],
+      toDoList: {
+        ...allToDoList,
+        [userDate]: newArr,
+      },
     });
 
     setIsEditCategory(false);
@@ -828,6 +787,9 @@ export default function ToDos({ userObj }: any) {
   };
 
   const getClickDate = (e: React.MouseEvent<HTMLDivElement>) => {
+    // setUserDate('null');
+    // setAllToDoList(null);
+    // setToDoList(null);
     const {
       currentTarget: { innerText },
     } = e;
@@ -837,33 +799,30 @@ export default function ToDos({ userObj }: any) {
     }`;
     setRefetch((prev) => !prev);
     setCategory(null);
+    setPrevUserDate(date);
     setUserDate(date);
   };
 
   if (!toDoList) return null;
 
   const userToDoData = (isFinish: boolean) => {
-    return toDoList[0]?.categoryList
+    return toDoList
       ?.filter((item: any) => item.id === category)[0]
-      ?.list.filter((item: any) => item.isFinish === isFinish)
-      ? toDoList[0]?.categoryList
+      ?.list?.filter((item: any) => item.isFinish === isFinish)
+      ? toDoList
           ?.filter((item: any) => item.id === category)[0]
-          ?.list.filter((item: any) => item.isFinish === isFinish)
-      : toDoList[0]?.categoryList[0].list.filter(
-          (item: any) => item.isFinish === isFinish
-        );
+          ?.list?.filter((item: any) => item.isFinish === isFinish)
+      : toDoList[0]?.list?.filter((item: any) => item.isFinish === isFinish);
   };
+  // console.log(userToDoData(false));
 
-  const totalList = toDoList[0]?.categoryList?.reduce((sum: any, item: any) => {
+  const totalList = toDoList?.reduce((sum: any, item: any) => {
     return sum + item?.list?.length;
   }, 0);
-  const finishList = toDoList[0]?.categoryList?.reduce(
-    (sum: any, item: any) => {
-      const list = item.list.filter((item: any) => item.isFinish === true);
-      return sum + list.length;
-    },
-    0
-  );
+  const finishList = toDoList?.reduce((sum: any, item: any) => {
+    const list = item.list.filter((item: any) => item.isFinish === true);
+    return sum + list.length;
+  }, 0);
   return (
     <Container>
       <Helmet>
@@ -916,7 +875,7 @@ export default function ToDos({ userObj }: any) {
         </Achievement>
         <ListDoToday>
           <ListTitleGrid>
-            {toDoList[0]?.categoryList.map((item: any) => (
+            {toDoList.map((item: any) => (
               <ListTitleWrapper
                 key={item.id}
                 onClick={() => onListChangeClick(item.id)}
@@ -930,7 +889,7 @@ export default function ToDos({ userObj }: any) {
                 )}
               </ListTitleWrapper>
             ))}
-            {+userDate >= +todayDate && toDoList[0]?.categoryList?.length < 5 && (
+            {+userDate >= +todayDate && toDoList.length < 5 && (
               <CreateList onClick={onCreateCategory}>
                 <Img src={PLUS} />
               </CreateList>
@@ -946,24 +905,19 @@ export default function ToDos({ userObj }: any) {
                 createdDate={todayDate}
                 isFinish={item.isFinish}
                 userObj={userObj}
-                categoryList={toDoList[0].categoryList}
+                categoryList={toDoList}
                 todayDate={todayDate}
                 userDate={userDate}
                 allToDoList={allToDoList}
-                userDateFindIndex={userDateFindIndex}
                 setLastCategory={setLastCategory}
               />
             ))}
           </DoList>
           <TodayBackground
             listWrapperColor={
-              toDoList[0]?.categoryList.findIndex(
-                (item: any) => item.id === category
-              ) !== -1
+              toDoList?.findIndex((item: any) => item.id === category) !== -1
                 ? listWrapperColor[
-                    toDoList[0]?.categoryList.findIndex(
-                      (item: any) => item.id === category
-                    )
+                    toDoList.findIndex((item: any) => item.id === category)
                   ]
                 : listWrapperColor[0]
             }
@@ -979,18 +933,16 @@ export default function ToDos({ userObj }: any) {
           >
             <TodayInput
               disabled={
-                toDoList[0]?.categoryList?.filter(
-                  (item: any) => item.id === category
-                )[0]?.list.length > 7 || +userDate < +todayDate
+                toDoList?.filter((item: any) => item.id === category)[0]?.list
+                  .length > 7 || +userDate < +todayDate
               }
               type="text"
               maxLength={80}
               onChange={onChange}
               value={toDos}
               placeholder={
-                toDoList[0]?.categoryList?.filter(
-                  (item: any) => item.id === category
-                )[0]?.list.length > 7
+                toDoList?.filter((item: any) => item.id === category)[0]?.list
+                  .length > 7
                   ? '최대 8개까지 적을 수 있습니다'
                   : +userDate < +todayDate
                   ? '과거의 목록은 추가할 수 없습니다'
@@ -1028,7 +980,7 @@ export default function ToDos({ userObj }: any) {
         </WhatDoToday>
         <ListCompletedToday>
           <ListTitleGrid>
-            {toDoList[0]?.categoryList.map((item: any) => (
+            {toDoList.map((item: any) => (
               <ListTitleWrapper
                 key={item.id}
                 onClick={() => onListChangeClick(item.id)}
@@ -1047,24 +999,19 @@ export default function ToDos({ userObj }: any) {
                 text={item.text}
                 isFinish={item.isFinish}
                 userObj={userObj}
-                categoryList={toDoList[0].categoryList}
+                categoryList={toDoList}
                 todayDate={todayDate}
                 userDate={userDate}
                 allToDoList={allToDoList}
-                userDateFindIndex={userDateFindIndex}
                 setLastCategory={setLastCategory}
               />
             ))}
           </DoList>
           <TodayBackground
             listWrapperColor={
-              toDoList[0]?.categoryList.findIndex(
-                (item: any) => item.id === category
-              ) !== -1
+              toDoList.findIndex((item: any) => item.id === category) !== -1
                 ? listWrapperColor[
-                    toDoList[0]?.categoryList.findIndex(
-                      (item: any) => item.id === category
-                    )
+                    toDoList.findIndex((item: any) => item.id === category)
                   ]
                 : listWrapperColor[0]
             }
