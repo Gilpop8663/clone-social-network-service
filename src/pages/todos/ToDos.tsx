@@ -607,20 +607,21 @@ export default function ToDos({ userObj }: any) {
       const toDosArr = snapshot.docs.map((item: any) => {
         return item.data();
       });
-
-      if (
-        toDosArr?.length === 0 ||
-        toDosArr[0]?.toDoList[userDate] === undefined
-      ) {
-        return allNewCategory();
-      }
-      // console.log(toDosArr[0].toDoList[userDate], userDate);
-      if (toDosArr[0].toDoList[userDate][0].id === undefined) return;
+      setTimeout(() => {
+        if (
+          toDosArr?.length === 0 ||
+          toDosArr[0]?.toDoList[userDate] === undefined
+        ) {
+          return allNewCategory();
+        }
+      }, 500);
+      if (toDosArr[0]?.toDoList[userDate][0]?.id === undefined) return;
 
       if (toDosArr?.length > 0) {
         setAllToDoList({ ...toDosArr[0].toDoList });
         setToDoList(toDosArr[0]?.toDoList[userDate]);
       }
+      // console.log(toDosArr[0].toDoList[userDate], userDate);
     });
   }, [userDate]);
 
@@ -803,7 +804,7 @@ export default function ToDos({ userObj }: any) {
     setUserDate(date);
   };
 
-  if (!toDoList) return null;
+  // if (!toDoList) return null;
 
   const userToDoData = (isFinish: boolean) => {
     return toDoList
